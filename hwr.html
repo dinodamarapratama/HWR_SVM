@@ -1,0 +1,2755 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript"src="js/lodash.min.js"></script>
+	<script src="js/svm.js"></script>
+     <style type="text/css">
+	 body{
+	
+    font-family: 'Open Sans', sans-serif;
+	background:#fff;
+}
+	 
+	  #content {
+        overflow:hidden;
+		background-color:#ddd;
+	  }
+	  #canvas{
+		cursor:crosshair ;
+        background-color:#fff;
+			
+	  }
+
+	  
+ a.button {
+background-image: -moz-linear-gradient(top, #ffffff, #dbdbdb);
+background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #ffffff),color-stop(1, #dbdbdb));
+filter: progid:DXImageTransform.Microsoft.gradient
+(startColorStr='#ffffff', EndColorStr='#dbdbdb');
+-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#ffffff', EndColorStr='#dbdbdb')";
+border: 1px solid #fff;
+-moz-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
+-webkit-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
+box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
+border-radius: 18px;
+-webkit-border-radius: 18px;
+-moz-border-radius: 18px;
+
+padding: 5px 15px;
+text-decoration: none;
+text-shadow: #fff 0 1px 0;
+float: left;
+margin-right: 5px;
+margin-bottom: 15px;
+display: block;
+color: #597390;
+line-height: 24px;
+font-size: 15px;
+font-weight: bold;
+}
+
+a.button:hover {
+background-image: -moz-linear-gradient(top, #ffffff, #eeeeee);
+background-image: -webkit-gradient(linear,left top,left bottom,
+    color-stop(0, #ffffff),color-stop(1, #eeeeee));
+filter: progid:DXImageTransform.Microsoft.gradient
+    (startColorStr='#ffffff', EndColorStr='#eeeeee');
+-ms-filter: "progid:DXImageTransform.Microsoft.gradient
+    (startColorStr='#ffffff', EndColorStr='#eeeeee')";
+color: #000;
+display: block;
+}
+
+a.button:active {
+background-image: -moz-linear-gradient(top, #dbdbdb, #ffffff);
+background-image: -webkit-gradient(linear,left top,left bottom,
+    color-stop(0, #dbdbdb),color-stop(1, #ffffff));
+filter: progid:DXImageTransform.Microsoft.gradient
+    (startColorStr='#dbdbdb', EndColorStr='#ffffff');
+-ms-filter: "progid:DXImageTransform.Microsoft.gradient
+    (startColorStr='#dbdbdb', EndColorStr='#ffffff')";
+text-shadow: 0px -1px 0 rgba(255, 255, 255, 0.5);
+margin-top: 1px;
+}
+
+a.button {
+border: 1px solid #979797;
+}
+	 
+	
+	
+}
+a.button.icon {
+padding-left: 11px;
+}
+
+a.button.icon.eraser span {
+padding-left: 20px;
+background: url(img/eraser.png) no-repeat;
+background-size : 15px;
+}
+
+a.button.icon.bird span {
+padding-left: 20px;
+background: url(img/bird.png) no-repeat;
+background-size : 15px;
+}
+    </style>
+  
+  <!-- CSS goes in the document HEAD or added to your external stylesheet -->
+<style type="text/css">
+
+	
+</style>
+
+ <script type="text/javascript">
+
+ var data1_s1 = 0;
+ var data1_s2 = 0;
+ var data2_s1 = 0;
+ var data2_s2 = 0;
+ var data3_s1 = 0;
+ var data3_s2 = 0;
+ var data4_s1 = 0;
+ var data4_s2 = 0;
+ var data5_s1 = 0;
+ var data5_s2 = 0;
+ var data6_s1 = 0;
+ var data6_s2 = 0;
+ var svm_word = "";
+ var syllable_word = "";
+ 
+ function clearCanvas() {
+	context = $("#canvas1")[0].getContext('2d');
+	context.clearRect(0, 0, $("#canvas1")[0].width, $("#canvas1")[0].height);
+	moves = [];
+    angleArray = [];
+	svm_word = "";
+  data1_s1 = 0;
+  data1_s2 = 0;
+  data2_s1 = 0;
+  data2_s2 = 0;
+  data3_s1 = 0;
+  data3_s2 = 0;
+  data4_s1 = 0;
+  data4_s2 = 0;
+  data5_s1 = 0;
+  data5_s2 = 0;
+  data6_s1 = 0;
+  data6_s2 = 0;
+  
+ var box = document.getElementById('box');
+ box.style.display = (box.style.display != 'visible') ? 'none' : '';
+}
+
+function recognition() {
+	
+	 var box = document.getElementById('box');
+     box.style.display = (box.style.display != 'none') ? 'visible' : '';
+	 document.getElementById("hasil").innerHTML = "Kata yang kamu tulis adalah : " + "<b>" + svm_word + "</b></br>" +  "Dengan Suku Kata : " + "<b>" + syllable_word + "</b>" ;
+
+
+}
+
+$(document).ready(function() {
+	newCanvas();
+});
+
+
+var recording = false;
+var lastPositionX = 0;
+var lastPositionY = 0;
+
+var moves = new Array;
+var angleArray = new Array;
+
+var anglesMap = new Array;
+var sectorRad = Math.PI * 2 / 8;
+var step = Math.PI * 2 / 100;
+var sector;
+for (var i = -sectorRad / 2; i <= Math.PI * 2 - sectorRad / 2; i += step) {
+	sector = Math.floor((i + sectorRad / 2) / sectorRad);
+	anglesMap.push(sector);
+}
+
+
+
+
+
+function newCanvas() {
+	var canvas = '<canvas id="canvas1"  width="' + ($(window).width()) + '" height="' + ($(window).height() - 200) + '" style="border:0px solid #190c00; max-width: 100%;height: auto;background:url(img/board.jpg);background-position: center top; background-size: 100% 100%;background-repeat: no-repeat;" ></canvas>';
+	$("#canvas").html(canvas);
+	ctx = document.getElementById("canvas1").getContext("2d");
+	ctx.lineWidth = 4;
+	$("#canvas1").drawTouch();
+	$("#canvas1").drawMouse();
+}
+
+
+
+$.fn.drawTouch = function() {
+	var start = function(e) {
+		e = e.originalEvent;
+		ctx.beginPath();
+		ctx.strokeStyle="#fff";
+		x = e.changedTouches[0].pageX - 1;
+		y = e.changedTouches[0].pageY - 2;
+		ctx.moveTo(x, y);
+		ctx.strokeRect(x, y, 1, 1);
+		recording = true;
+		lastPositionX = e.changedTouches[0].pageX - $("#canvas1").offset().left;
+		lastPositionY = e.changedTouches[0].pageY - $("#canvas1").offset().top;
+
+	};
+
+	var move = function(e) {
+
+		e = e.originalEvent;
+		x = e.changedTouches[0].pageX - 1;
+		y = e.changedTouches[0].pageY - 2;
+		ctx.lineTo(x, y);
+		ctx.stroke();
+		
+
+
+		if (recording == true) {
+			var msx = (e.changedTouches[0].pageX - $("#canvas1").offset().left);
+			var msy = (e.changedTouches[0].pageY - $("#canvas1").offset().top);
+			var difx = msx - lastPositionX;
+			var dify = msy - lastPositionY;
+			var sqDist = (difx * difx + dify * dify);
+			var sqPrec = (8 * 8);
+			if (sqDist > sqPrec) {
+
+				lastPositionX = msx;
+				lastPositionY = msy;
+				var angle = Math.atan2(difx, dify) + sectorRad / 2;
+				
+				var angleRound = Math.floor(angle * 100);
+				//f = value < 0 ? Math.abs(value) : value;
+				if (angle < 0) angle += Math.PI * 2;
+				var no = Math.floor(angle / (Math.PI * 2) * 100);
+				moves.push(anglesMap[no]);
+				angleArray.push(angle);
+				data1_s1 = _.first(_.uniq(angleArray)) ;
+				data2_s1 = _.last(_.uniq(angleArray)) ;
+				data3_s1 = _.first(_.uniq(moves)) ;
+				data4_s1 = _.last(_.uniq(moves)) ;
+				data5_s1 = _.uniq(angleArray).length ;
+				data6_s1 = _.uniq(moves).length ;
+
+			}
+		}
+	};
+
+	var stop = function(e) {
+		clicked = 0;
+		recording = false;
+		lastPositionX = 0;
+		lastPositionY = 0;
+		
+		data1_s2 += data1_s1 ;
+		data2_s2 += data2_s1 ;
+		data3_s2 += data3_s1 ;
+		data4_s2 += data4_s1 ;
+		data5_s2 += data6_s1 ;
+		data6_s2 += data6_s1 ;
+		console.log(data1_s1 + " " + data2_s1 + " " + data5_s1);
+		mouseClick();
+		
+	};
+
+	$(this).on("touchstart", start);
+	$(this).on("touchmove", move);
+	$(this).on("touchend", stop);
+};
+
+
+
+$.fn.drawMouse = function() {
+	var clicked = 0;
+	
+	var start = function(e) {
+		e = e.originalEvent;
+		clicked = 1;
+		ctx.beginPath();
+		ctx.strokeStyle="#fff";
+		x = e.pageX - 1;
+		y = e.pageY - 2;
+		ctx.moveTo(x, y);
+		ctx.strokeRect(x, y, 1, 1);
+		lastPositionX = e.clientX - $("#canvas1").offset().left;
+		lastPositionY = e.clientY - $("#canvas1").offset().top;
+		recording = true;
+		
+	};
+
+	var move = function(e) {
+		e = e.originalEvent;
+		
+
+		if (clicked) {
+			x = e.pageX - 1;
+		    y = e.pageY - 2;
+			ctx.lineTo(x, y);
+			ctx.stroke();
+		}
+		if (recording == true) {
+			var msx = (e.clientX - $("#canvas1").offset().left);
+			var msy = (e.clientY - $("#canvas1").offset().top);
+			var difx = msx - lastPositionX;
+			var dify = msy - lastPositionY;
+			var sqDist = (difx * difx + dify * dify);
+			var sqPrec = (8 * 8);
+
+
+			if (sqDist > sqPrec) {
+
+				lastPositionX = msx;
+				lastPositionY = msy;
+				var angle = Math.atan2(difx, dify) + sectorRad / 2;
+				
+				var angleRound = Math.floor(angle * 100);
+				//f = value < 0 ? Math.abs(value) : value;
+				if (angle < 0) angle += Math.PI * 2;
+				var no = Math.floor(angle / (Math.PI * 2) * 100);
+				//console.log(no);
+				moves.push(anglesMap[no]);
+				console.log(moves);
+				angleArray.push(angle);console.log(angleArray);
+				data1_s1 = _.first(_.uniq(angleArray)) ;
+				data2_s1 = _.last(_.uniq(angleArray)) ;
+				data3_s1 = _.first(_.uniq(moves)) ;
+				data4_s1 = _.last(_.uniq(moves)) ;
+				data5_s1 = _.uniq(angleArray).length ;
+				data6_s1 = _.uniq(moves).length ;
+
+			}
+		}
+
+
+
+	};
+
+	var stop = function(e) {
+		e = e.originalEvent;
+		clicked = 0;
+		recording = false;
+		lastPositionX = 0;
+		lastPositionY = 0;
+		
+		data1_s2 += data1_s1 ;
+		data2_s2 += data2_s1 ;
+		data3_s2 += data3_s1 ;
+		data4_s2 += data4_s1 ;
+		data5_s2 += data6_s1 ;
+		data6_s2 += data6_s1 ;
+		//console.log(data1_s1 + " " + data2_s1 + " " + data5_s1 + " " + data6_s1);
+		mouseClick();
+		
+
+		
+		//memulai 
+		
+		
+	};
+
+	$(this).on("mousedown", start);
+	$(this).on("mousemove", move);
+	$(this).on("mouseup", stop);
+};
+
+    //Batas ---------------------------------
+  
+  
+var svmC = 1.0;
+var svm = new svmjs.SVM();
+
+var classifystep1_1 = []; 
+var classifystep1_1Label = [];
+var labels_classifystep1_1 = [];
+
+var classifystep1_2 = [];
+var classifystep1_2Label = [];
+var labels_classifystep1_2 = [];
+
+var classifystep1_3 = [];
+var classifystep1_3Label = [];
+var labels_classifystep1_3 = [];
+
+var classifystep1_4 = [];
+var classifystep1_4Label = [];
+var labels_classifystep1_4 = [];
+
+var classifystep1_5 = [];
+var classifystep1_5Label = [];
+var labels_classifystep1_5 = [];
+
+var classifystep1_6 = [];
+var classifystep1_6Label = [];
+var labels_classifystep1_6 = [];
+
+var classifystep2_1 = []; //step2_1
+var classifystep2_1Label = [];
+var labels_classifystep2_1 = [];
+
+var classifystep2_2 = [];
+var classifystep2_2Label = [];
+var labels_classifystep2_2 = [];
+
+var classifystep2_3 = [];
+var classifystep2_3Label = [];
+var labels_classifystep2_3 = [];
+
+var classifystep3_1 = [];
+var classifystep3_1Label = [];
+var labels_classifystep3_1 = [];
+
+var classifystep3_2 = [];
+var classifystep3_2Label = [];
+var labels_classifystep3_2 = [];
+
+
+var classifystep4 = [];
+var classifystep4Label = [];
+var labels_classifystep4 = [];
+
+var classifystepFinal = [[1.9634954084936207,1.9634954084936207],[1.9634954084936207,1.9634954084936207],[1.9634954084936207,1.9634954084936207],[1.9634954084936207,1.9634954084936207]];
+var classifystepFinalLabel = [" "];
+var labels_classifystepFinalLabel = [1,1,1,1];
+
+
+//training
+
+function trainSVM_AB(letter_AB,labels_AB) {
+	trainstats = svm.train(letter_AB, labels_AB, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_AB);
+	for (var i = 0; i < letter_AB.length; i++) {
+		predict = svm.predict(letter_AB);
+	}
+}
+
+function trainSVM_CD(letter_CD,labels_CD) {
+	trainstats = svm.train(letter_CD, labels_CD, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_CD);
+	for (var i = 0; i < letter_CD.length; i++) {
+		predict = svm.predict(letter_CD);
+	}
+}
+
+function trainSVM_EF(letter_EF,labels_EF) {
+	trainstats = svm.train(letter_EF, labels_EF, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_EF);
+	for (var i = 0; i < letter_EF.length; i++) {
+		predict = svm.predict(letter_EF);
+	}
+}
+
+function trainSVM_GH(letter_GH,labels_GH) {
+	trainstats = svm.train(letter_GH, labels_GH, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_GH);
+	for (var i = 0; i < letter_GH.length; i++) {
+		predict = svm.predict(letter_GH);
+	}
+}
+
+function trainSVM_IJ(letter_IJ,labels_IJ) {
+	trainstats = svm.train(letter_IJ, labels_IJ, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_IJ);
+	for (var i = 0; i < letter_IJ.length; i++) {
+		predict = svm.predict(letter_IJ);
+	}
+
+}
+
+function trainSVM_KL(letter_KL,labels_KL) {
+	trainstats = svm.train(letter_KL, labels_KL, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_KL);
+	for (var i = 0; i < letter_KL.length; i++) {
+		predict = svm.predict(letter_KL);
+	}
+
+}
+
+function trainSVM_MN(letter_MN,labels_MN) {
+	trainstats = svm.train(letter_MN, labels_MN, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_MN);
+	for (var i = 0; i < letter_MN.length; i++) {
+		predict = svm.predict(letter_MN);
+	}
+
+}
+
+function trainSVM_OP(letter_OP,labels_OP) {
+	trainstats = svm.train(letter_OP, labels_OP, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_OP);
+	for (var i = 0; i < letter_OP.length; i++) {
+		predict = svm.predict(letter_OP);
+	}
+
+}
+
+function trainSVM_QR(letter_QR,labels_QR) {
+	trainstats = svm.train(letter_QR, labels_QR, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_QR);
+	for (var i = 0; i < letter_QR.length; i++) {
+		predict = svm.predict(letter_QR);
+	}
+
+}
+
+function trainSVM_ST(letter_ST,labels_ST) {
+	trainstats = svm.train(letter_ST, labels_ST, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_ST);
+	for (var i = 0; i < letter_ST.length; i++) {
+		predict = svm.predict(letter_ST);
+	}
+
+}
+
+function trainSVM_UV(letter_UV,labels_UV) {
+	trainstats = svm.train(letter_UV, labels_UV, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_UV);
+	for (var i = 0; i < letter_UV.length; i++) {
+		predict = svm.predict(letter_UV);
+	}
+
+}
+
+function trainSVM_WX(letter_WX,labels_WX) {
+	trainstats = svm.train(letter_WX, labels_WX, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_WX);
+	for (var i = 0; i < letter_WX.length; i++) {
+		predict = svm.predict(letter_WX);
+	}
+
+}
+
+function trainSVM_YZ(letter_YZ,labels_YZ) {
+
+	trainstats = svm.train(letter_YZ, labels_YZ, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_YZ);
+	for (var i = 0; i < letter_YZ.length; i++) {
+		predict = svm.predict(letter_YZ);
+	}
+}
+
+
+//TRAIN classifystep1
+function train_classifystep1_1() {
+	trainstats = svm.train(classifystep1_1, labels_classifystep1_1, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep1_1);
+	for (var i = 0; i < classifystep1_1.length; i++) {
+		predict = svm.predict(classifystep1_1);
+	}
+}
+
+function train_classifystep1_2() {
+	trainstats = svm.train(classifystep1_2, labels_classifystep1_2, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep1_2);
+	for (var i = 0; i < classifystep1_2.length; i++) {
+		predict = svm.predict(classifystep1_2);
+	}
+}
+
+function train_classifystep1_3() {
+	trainstats = svm.train(classifystep1_3, labels_classifystep1_3, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep1_3);
+	for (var i = 0; i < classifystep1_3.length; i++) {
+		predict = svm.predict(classifystep1_3);
+	}
+}
+
+function train_classifystep1_4() {
+	trainstats = svm.train(classifystep1_4, labels_classifystep1_4, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep1_4);
+	for (var i = 0; i < classifystep1_4.length; i++) {
+		predict = svm.predict(classifystep1_4);
+	}
+}
+
+function train_classifystep1_5() {
+	trainstats = svm.train(classifystep1_5, labels_classifystep1_5, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep1_5);
+	for (var i = 0; i < classifystep1_5.length; i++) {
+		predict = svm.predict(classifystep1_5);
+	}
+}
+
+function train_classifystep1_6() {
+	trainstats = svm.train(classifystep1_6, labels_classifystep1_6, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep1_6);
+	for (var i = 0; i < classifystep1_6.length; i++) {
+		predict = svm.predict(classifystep1_6);
+	}
+}
+
+
+//TRAIN classifystep2
+function train_classifystep2_1() {
+	trainstats = svm.train(classifystep2_1, labels_classifystep2_1, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep2_1);
+	for (var i = 0; i < classifystep2_1.length; i++) {
+		predict = svm.predict(classifystep2_1);
+	}
+}
+
+function train_classifystep2_2() {
+	trainstats = svm.train(classifystep2_2, labels_classifystep2_2, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep2_2);
+	for (var i = 0; i < classifystep2_2.length; i++) {
+		predict = svm.predict(classifystep2_2);
+	}
+}
+
+function train_classifystep2_3() {
+	trainstats = svm.train(classifystep2_3, labels_classifystep2_3, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep2_3);
+	for (var i = 0; i < classifystep2_3.length; i++) {
+		predict = svm.predict(classifystep2_3);
+	}
+}
+
+
+//TRAIN classifystep3
+function train_classifystep3_1() {
+	trainstats = svm.train(classifystep3_1, labels_classifystep3_1, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep3_1);
+	for (var i = 0; i < classifystep3_1.length; i++) {
+		predict = svm.predict(classifystep3_1);
+	}
+}
+
+function train_classifystep3_2() {
+	trainstats = svm.train(classifystep3_2, labels_classifystep3_2, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep3_2);
+	for (var i = 0; i < classifystep3_2.length; i++) {
+		predict = svm.predict(classifystep3_2);
+	}
+}
+
+
+//final
+
+function train_classifystep4() {
+	trainstats = svm.train(classifystep4, labels_classifystep4, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep4);
+	for (var i = 0; i < classifystep4.length; i++) {
+		predict = svm.predict(classifystep4);
+	}
+}
+
+function train_spaceOrletter() {
+	trainstats = svm.train(classifystepFinal, classifystepFinalLabel, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystepFinal);
+	for (var i = 0; i < classifystepFinal.length; i++) {
+		predict = svm.predict(classifystepFinal);
+	}
+}
+
+
+
+//classifystep1_1
+
+function predict_AB(letter_AB,labels_AB) {
+	trainstats = svm.train(letter_AB, labels_AB, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_AB);
+	for (var i = 0; i < letter_AB.length; i++) {
+		predict = svm.predict(letter_AB);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep1_1.push(letter_AB[i]);
+			labels_classifystep1_1.push(1);
+		};
+
+		classifystep1_1Label.push('A');
+		//console.log(classifystep1_1Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep1_1.push(letter_AB[i]);
+			labels_classifystep1_1.push(1);
+			
+
+		};
+		classifystep1_1Label.push('B');
+		//console.log(classifystep1_1Label);	  
+	}
+}
+
+function predict_CD(letter_CD,labels_CD) {
+	trainstats = svm.train(letter_CD, labels_CD, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_CD);
+	for (var i = 0; i < letter_CD.length; i++) {
+		predict = svm.predict(letter_CD);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep1_1.push(letter_CD[i]);
+			labels_classifystep1_1.push(-1);
+
+
+		};
+		classifystep1_1Label.push('C');
+		//console.log(classifystep1_1Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep1_1.push(letter_CD[i]);
+			labels_classifystep1_1.push(-1);
+
+		};
+		classifystep1_1Label.push('D');
+		//console.log(classifystep1_1Label);	  
+	}
+}
+
+
+//classifystep1_2
+function predict_EF(letter_EF,labels_EF) {
+	trainstats = svm.train(letter_EF, labels_EF, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_EF);
+	for (var i = 0; i < letter_EF.length; i++) {
+		predict = svm.predict(letter_EF);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep1_2.push(letter_EF[i]);
+			labels_classifystep1_2.push(1);
+
+
+		};
+		classifystep1_2Label.push('E');
+		//console.log(classifystep1_2Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep1_2.push(letter_EF[i]);
+			labels_classifystep1_2.push(1);
+
+		};
+		classifystep1_2Label.push('F');
+		//console.log(classifystep1_2Label);	  
+	}
+}
+
+function predict_GH(letter_GH,labels_GH) {
+	trainstats = svm.train(letter_GH, labels_GH, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_GH);
+	for (var i = 0; i < letter_GH.length; i++) {
+		predict = svm.predict(letter_GH);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep1_2.push(letter_GH[i]);
+			labels_classifystep1_2.push(-1);
+
+
+		};
+		classifystep1_2Label.push('G');
+		//console.log(classifystep1_2Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep1_2.push(letter_GH[i]);
+			labels_classifystep1_2.push(-1);
+
+		};
+		classifystep1_2Label.push('H');
+		//console.log(classifystep1_2Label);	  
+	}
+}
+
+
+//classifystep1_3
+
+function predict_IJ(letter_IJ,labels_IJ) {
+	trainstats = svm.train(letter_IJ, labels_IJ, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_IJ);
+	for (var i = 0; i < letter_IJ.length; i++) {
+		predict = svm.predict(letter_IJ);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep1_3.push(letter_IJ[i]);
+			labels_classifystep1_3.push(1);
+
+
+		};
+		classifystep1_3Label.push('I');
+		//console.log(classifystep1_3Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep1_3.push(letter_IJ[i]);
+			labels_classifystep1_3.push(1);
+
+		};
+		classifystep1_3Label.push('J');
+		//console.log(classifystep1_3Label);	  
+	}
+}
+
+function predict_KL(letter_KL,labels_KL) {
+	trainstats = svm.train(letter_KL, labels_KL, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_KL);
+	for (var i = 0; i < letter_KL.length; i++) {
+		predict = svm.predict(letter_KL);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep1_3.push(letter_KL[i]);
+			labels_classifystep1_3.push(-1);
+
+
+		};
+		classifystep1_3Label.push('K');
+		//console.log(classifystep1_3Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep1_3.push(letter_KL[i]);
+			labels_classifystep1_3.push(-1);
+
+		};
+		classifystep1_3Label.push('L');
+		//console.log(classifystep1_3Label);	  
+	}
+}
+
+//classifystep1_4
+function predict_MN(letter_MN,labels_MN) {
+	trainstats = svm.train(letter_MN, labels_MN, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_MN);
+	for (var i = 0; i < letter_MN.length; i++) {
+		predict = svm.predict(letter_MN);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep1_4.push(letter_MN[i]);
+			labels_classifystep1_4.push(1);
+
+
+		};
+		classifystep1_4Label.push('M');
+		//console.log(classifystep1_4Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep1_4.push(letter_MN[i]);
+			labels_classifystep1_4.push(1);
+
+		};
+		classifystep1_4Label.push('N');
+		//console.log(classifystep1_4Label);	  
+	}
+}
+
+function predict_OP(letter_OP,labels_OP) {
+	trainstats = svm.train(letter_OP, labels_OP, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_OP);
+	for (var i = 0; i < letter_OP.length; i++) {
+		predict = svm.predict(letter_OP);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep1_4.push(letter_OP[i]);
+			labels_classifystep1_4.push(-1);
+
+
+		};
+		classifystep1_4Label.push('O');
+		//console.log(classifystep1_4Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep1_4.push(letter_OP[i]);
+			labels_classifystep1_4.push(-1);
+
+		};
+		classifystep1_4Label.push('P');
+		//console.log(classifystep1_4Label);	  
+	}
+}
+
+
+function predict_YZ(letter_YZ,labels_YZ) {
+	trainstats = svm.train(letter_YZ, labels_YZ, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_YZ);
+	for (var i = 0; i < letter_YZ.length; i++) {
+		predict = svm.predict(letter_YZ);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep3_2.push(letter_YZ[i]);
+			labels_classifystep3_2.push(1);
+
+
+		};
+		classifystep3_2Label.push('Y');
+		//console.log(classifystep3_2Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep3_2.push(letter_YZ[i]);
+			labels_classifystep3_2.push(1);
+
+		};
+		classifystep3_2Label.push('Z');
+		//console.log(classifystep3_2Label);	  
+	}
+}
+
+//classifystep1_5
+
+function predict_QR(letter_QR,labels_QR) {
+	trainstats = svm.train(letter_QR, labels_QR, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_QR);
+	for (var i = 0; i < letter_QR.length; i++) {
+		predict = svm.predict(letter_QR);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep1_5.push(letter_QR[i]);
+
+
+		};
+		classifystep1_5Label.push('Q');
+		//console.log(classifystep1_5Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep1_5.push(letter_QR[i]);
+
+		};
+		classifystep1_5Label.push('R');
+		//console.log(classifystep1_5Label);	  
+	}
+}
+
+function predict_ST(letter_ST,labels_ST) {
+	trainstats = svm.train(letter_ST, labels_ST, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_ST);
+	for (var i = 0; i < letter_ST.length; i++) {
+		predict = svm.predict(letter_ST);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep1_5.push(letter_ST[i]);
+
+
+		};
+		classifystep1_5Label.push('S');
+		//console.log(classifystep1_5Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep1_5.push(letter_ST[i]);
+
+		};
+		classifystep1_5Label.push('T');
+		//console.log(classifystep1_5Label);	  
+	}
+}
+
+
+//classifystep1_6
+function predict_UV(letter_UV,labels_UV) {
+	trainstats = svm.train(letter_UV, labels_UV, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_UV);
+	for (var i = 0; i < letter_UV.length; i++) {
+		predict = svm.predict(letter_UV);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep1_6.push(letter_UV[i]);
+
+
+		};
+		classifystep1_6Label.push('U');
+		//console.log(classifystep1_6Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep1_6.push(letter_UV[i]);
+
+		};
+		classifystep1_6Label.push('V');
+		//console.log(classifystep1_6Label);	  
+	}
+}
+
+function predict_WX(letter_WX,labels_WX) {
+	trainstats = svm.train(letter_WX, labels_WX, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(letter_WX);
+	for (var i = 0; i < letter_WX.length; i++) {
+		predict = svm.predict(letter_WX);
+	}
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep1_6.push(letter_WX[i]);
+
+
+		};
+		classifystep1_6Label.push('W');
+		//console.log(classifystep1_6Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep1_6.push(letter_WX[i]);
+
+		};
+		classifystep1_6Label.push('X');
+		//console.log(classifystep1_6Label);	  
+	}
+}
+
+// AB VS CD
+function predict_classifystep1_1() {
+	trainstats = svm.train(classifystep1_1, labels_classifystep1_1, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep1_1);
+	for (var i = 0; i < classifystep1_1.length; i++) {
+		predict = svm.predict(classifystep1_1);
+	}
+
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep2_1.push(classifystep1_1[i]);
+			labels_classifystep2_1.push(1);
+       
+
+		};
+		classifystep2_1Label.push(_.first(classifystep1_1Label));
+		//console.log(classifystep2_1Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep2_1.push(classifystep1_1[i]);
+			labels_classifystep2_1.push(1);
+		};
+		classifystep2_1Label.push(_.last(classifystep1_1Label));
+		  
+	}
+	
+}
+
+
+//EF VS GH
+
+function predict_classifystep1_2() {
+	trainstats = svm.train(classifystep1_2, labels_classifystep1_2, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep1_2);
+	for (var i = 0; i < classifystep1_2.length; i++) {
+		predict = svm.predict(classifystep1_2);
+	}
+
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep2_1.push(classifystep1_2[i]);
+			labels_classifystep2_1.push(-1);
+
+
+		};
+		classifystep2_1Label.push(_.first(classifystep1_2Label));
+		//console.log(classifystep2_1Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep2_1.push(classifystep1_2[i]);
+			labels_classifystep2_1.push(-1);
+
+		};
+		classifystep2_1Label.push(_.last(classifystep1_2Label));
+		//console.log(classifystep2_1Label);	  
+	}
+}
+
+//IJ VS KL
+
+function predict_classifystep1_3() {
+	trainstats = svm.train(classifystep1_3, labels_classifystep1_3, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep1_3);
+	for (var i = 0; i < classifystep1_3.length; i++) {
+		predict = svm.predict(classifystep1_3);
+	}
+
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep2_2.push(classifystep1_3[i]);
+			labels_classifystep2_2.push(1);
+
+
+		};
+		classifystep2_2Label.push(_.first(classifystep1_3Label));
+		//console.log(classifystep2_2Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep2_2.push(classifystep1_3[i]);
+			labels_classifystep2_2.push(1);
+
+		};
+		classifystep2_2Label.push(_.last(classifystep1_3Label));
+		//console.log(classifystep2_2Label);	  
+	}
+}
+
+//MN VS OP 
+function predict_classifystep1_4() {
+	trainstats = svm.train(classifystep1_4, labels_classifystep1_4, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep1_4);
+	for (var i = 0; i < classifystep1_4.length; i++) {
+		predict = svm.predict(classifystep1_4);
+	}
+
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep2_2.push(classifystep1_4[i]);
+			labels_classifystep2_2.push(-1);
+
+
+		};
+		classifystep2_2Label.push(_.first(classifystep1_4Label));
+		//console.log(classifystep2_2Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep2_2.push(classifystep1_4[i]);
+			labels_classifystep2_2.push(-1);
+
+		};
+		classifystep2_2Label.push(_.last(classifystep1_4Label));
+		//console.log(classifystep2_2Label);	  
+	}
+}
+
+//QR VS ST 
+function predict_classifystep1_5() {
+	trainstats = svm.train(classifystep1_5, labels_classifystep1_5, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep1_5);
+	for (var i = 0; i < classifystep1_5.length; i++) {
+		predict = svm.predict(classifystep1_5);
+	}
+
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep2_3.push(classifystep1_5[i]);
+			labels_classifystep2_3.push(1);
+
+
+		};
+		classifystep2_3Label.push(_.first(classifystep1_5Label));
+		//console.log(classifystep2_3Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep2_3.push(classifystep1_5[i]);
+			labels_classifystep2_3.push(1);
+
+		};
+		classifystep2_3Label.push(_.last(classifystep1_5Label));
+		//console.log(classifystep2_3Label);	  
+	}
+}
+
+
+//UV VS WX 
+
+function predict_classifystep1_6() {
+	trainstats = svm.train(classifystep1_6, labels_classifystep1_6, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep1_6);
+	for (var i = 0; i < classifystep1_6.length; i++) {
+		predict = svm.predict(classifystep1_6);
+	}
+
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep2_3.push(classifystep1_6[i]);
+			labels_classifystep2_3.push(-1);
+
+
+		};
+		classifystep2_3Label.push(_.first(classifystep1_6Label));
+		//console.log(classifystep2_3Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep2_3.push(classifystep1_6[i]);
+			labels_classifystep2_3.push(-1);
+
+		};
+		classifystep2_3Label.push(_.last(classifystep1_6Label));
+		//console.log(classifystep2_3Label);	  
+	}
+}
+
+
+//predictStep2
+function predict_classifystep2_1() {
+	trainstats = svm.train(classifystep2_1, labels_classifystep2_1, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep2_1);
+	for (var i = 0; i < classifystep2_1.length; i++) {
+		predict = svm.predict(classifystep2_1);
+	}
+
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep3_1.push(classifystep2_1[i]);
+			labels_classifystep3_1.push(1);
+
+
+		};
+		classifystep3_1Label.push(_.first(classifystep2_1Label));
+		//console.log(classifystep3_1Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep3_1.push(classifystep2_1[i]);
+			labels_classifystep3_1.push(1);
+
+		};
+		classifystep3_1Label.push(_.last(classifystep2_1Label));
+		//console.log(classifystep3_1Label);	  
+	}
+}
+
+function predict_classifystep2_2() {
+	trainstats = svm.train(classifystep2_2, labels_classifystep2_2, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep2_2);
+	for (var i = 0; i < classifystep2_2.length; i++) {
+		predict = svm.predict(classifystep2_2);
+	}
+
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep3_1.push(classifystep2_2[i]);
+			labels_classifystep3_1.push(-1);
+
+
+		};
+		classifystep3_1Label.push(_.first(classifystep2_2Label));
+		//console.log(classifystep3_1Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep3_1.push(classifystep2_2[i]);
+			labels_classifystep3_1.push(-1);
+
+		};
+		classifystep3_1Label.push(_.last(classifystep2_2Label));
+		//console.log(classifystep3_1Label);	  
+	}
+}
+
+function predict_classifystep2_3() {
+	trainstats = svm.train(classifystep2_3, labels_classifystep2_3, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep2_3);
+	for (var i = 0; i < classifystep2_3.length; i++) {
+		predict = svm.predict(classifystep2_3);
+	}
+
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep3_2.push(classifystep2_3[i]);
+			labels_classifystep3_2.push(-1);
+
+
+		};
+		classifystep3_2Label.push(_.first(classifystep2_3Label));
+		//console.log(classifystep3_2Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep3_2.push(classifystep2_3[i]);
+			labels_classifystep3_2.push(-1);
+
+		};
+		classifystep3_2Label.push(_.last(classifystep2_3Label));
+		//console.log(classifystep3_2Label);	  
+	}
+}
+
+
+function predict_classifystep3_1() {
+	trainstats = svm.train(classifystep3_1, labels_classifystep3_1, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep3_1);
+	for (var i = 0; i < classifystep3_1.length; i++) {
+		predict = svm.predict(classifystep3_1);
+	}
+
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep4.push(classifystep3_1[i]);
+			labels_classifystep4.push(1);
+
+
+		};
+		classifystep4Label.push(_.first(classifystep3_1Label));
+		//console.log(classifystep4Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep4.push(classifystep3_1[i]);
+			labels_classifystep4.push(1);
+
+		};
+		classifystep4Label.push(_.last(classifystep3_1Label));
+		//console.log(classifystep4Label);	  
+	}
+}
+
+
+function predict_classifystep3_2() {
+	trainstats = svm.train(classifystep3_2, labels_classifystep3_2, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep3_2);
+	for (var i = 0; i < classifystep3_2.length; i++) {
+		predict = svm.predict(classifystep3_2);
+	}
+
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystep4.push(classifystep3_2[i]);
+			labels_classifystep4.push(-1);
+			
+
+
+		};
+		classifystep4Label.push(_.first(classifystep3_2Label));
+		//console.log(classifystep4Label);	  
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystep4.push(classifystep3_2[i]);
+			labels_classifystep4.push(-1);
+		
+
+		};
+		classifystep4Label.push(_.last(classifystep3_2Label));
+		//console.log(classifystep4Label);	  
+	}
+}
+
+
+function predict_classifystep4() {
+	trainstats = svm.train(classifystep4, labels_classifystep4, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystep4);
+	for (var i = 0; i < classifystep4.length; i++) {
+		predict = svm.predict(classifystep4);
+	}
+
+	var last = _.last(predict);
+
+	if (last == 1) {
+		for (i = 0; i < 4; i++) {
+			classifystepFinal.push(classifystep4[i]);
+			labels_classifystepFinalLabel.push(-1);
+		};
+		classifystepFinalLabel.push(_.first(classifystep4Label));
+        
+		//console.log(classifystepFinalLabel);	
+		
+	} else {
+		for (i = 4; i < 8; i++) {
+			classifystepFinal.push(classifystep4[i]);
+			labels_classifystepFinalLabel.push(-1);
+
+		};
+		classifystepFinalLabel.push(_.last(classifystep4Label));
+        
+		//console.log(classifystepFinalLabel);	
+	}
+}
+
+function predict_spaceOrletter() {
+	trainstats = svm.train(classifystepFinal, labels_classifystepFinalLabel, {
+		kernel: 'linear',
+		C: svmC,
+		lastiter: 1000
+	});
+	var marg = svm.margins(classifystepFinal);
+	for (var i = 0; i < classifystepFinal.length; i++) {
+		predict = svm.predict(classifystepFinal);
+	}
+	//console.log(predict);
+	var obj = [19, 18, 15, 16, 14, 21, 25, 29, 32, 28, 31, 17, 27,30,22, 16, 23, 20, 26, 22,26, 33, 35, 27];
+    var test = _.includes(obj,data5_s1);
+	console.log(test);	
+	console.log(data5_s1);	
+	console.log(obj);
+	
+	var last = _.last(predict);
+
+	if ( data5_s2 == 0 ) {
+		svm_word += _.first(classifystepFinalLabel);
+		console.log(svm_word);
+	} 
+	
+	else {
+        svm_word += _.last(classifystepFinalLabel) ;
+		console.log(svm_word);
+	
+	}
+	//console.log(classifystepFinalLabel	);
+}
+
+
+
+function mouseClick() {
+
+ classifystep1_1 = []; 
+ classifystep1_1Label = [];
+ labels_classifystep1_1 = [];
+
+ classifystep1_2 = [];
+ classifystep1_2Label = [];
+ labels_classifystep1_2 = [];
+
+ classifystep1_3 = [];
+ classifystep1_3Label = [];
+ labels_classifystep1_3 = [];
+
+ classifystep1_4 = [];
+ classifystep1_4Label = [];
+ labels_classifystep1_4 = [];
+
+ classifystep1_5 = [];
+ classifystep1_5Label = [];
+ labels_classifystep1_5 = [];
+
+ classifystep1_6 = [];
+ classifystep1_6Label = [];
+ labels_classifystep1_6 = [];
+
+ classifystep2_1 = []; //step2_1
+ classifystep2_1Label = [];
+ labels_classifystep2_1 = [];
+
+ classifystep2_2 = [];
+ classifystep2_2Label = [];
+ labels_classifystep2_2 = [];
+
+ classifystep2_3 = [];
+ classifystep2_3Label = [];
+ labels_classifystep2_3 = [];
+
+ classifystep3_1 = [];
+ classifystep3_1Label = [];
+ labels_classifystep3_1 = [];
+
+ classifystep3_2 = [];
+ classifystep3_2Label = [];
+ labels_classifystep3_2 = [];
+
+
+ classifystep4 = [];
+ classifystep4Label = [];
+ labels_classifystep4 = [];
+
+ classifystepFinal = [[0,0],[0,0],[0,0],[0,0]];
+ classifystepFinalLabel = [" "];
+ labels_classifystepFinalLabel = [1,1,1,1];
+
+    var letter_AB = [
+[	5.365690453830755 , 0.773205458811089	]	,
+[	4.886419116	,	1.718516745	]	,
+[	4.585941948	,	0.911845196	]	,
+[	4.484838576	,	0.637677745	]	,
+[	0.392699082	,	5.105088062	]	,
+[	0.392699081	,	4.980733067	]	,
+[	0.392699082	,	4.585941948	]	,
+[	0.392699082	,	4.319689899	]	
+
+	];
+	var labels_AB = [1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_AB(letter_AB,labels_AB);
+
+
+
+	var letter_CD = [
+[	4.154541221	,	3.015145621	]	,
+[	4.39646179	,	2.914042249	]	,
+[	4.484838576	,	2.482641523	]	,
+[	4.05343785	,	2.208474072	]	,
+[	4.980733067536653 , 1.9634954084936207	]	,
+[	0.392699082	,	1.839140414	]	,
+[	0.392699082	,	2.208474072	]	,
+[	0.392699082	,	2.825665463	]	,
+[	0.392699081	,	1.963495408	]	
+	];
+	var labels_CD = [1, 1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_CD(letter_CD,labels_CD);
+
+
+
+	var letter_EF = [
+[	1.7185167453667567 , 1.8391404139468592	]	,
+[	1.012948567	,	2.583744894	]	,
+[	1.9634954084936207, 1.8391404139468592	]	,
+[	1.9634954084936207, 1.8391404139468592	]	,
+[	3.779270398	,	1.852838187	]	,
+[	3.7792703984153815 , 2.0189939137393376	]	,
+[	4.09289105063208, 2.087850403040382	]	,
+[	3.633960387779679, 2.0541552956943656	]	
+
+	];
+	var labels_EF = [1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_EF(letter_EF,labels_EF);
+
+
+
+	var letter_GH = [
+[	4.886419116209472, 4.860109398956549	]	,
+[	4.994430840909518, 4.980733067536653	]	,
+[	5.105088062083414, 5.215745283257309	]	,
+[	4.783337507686771, 4.746317391812841	]	,
+[	0.517054076	,	0.751469752	]	,
+[	0.392699081	,	0.517054076	]	,
+[	0.392699082	,	0.741470085	]	,
+[	0.517054076	,	0.268344087	]	
+
+
+	];
+	var labels_GH = [1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_GH(letter_GH,labels_GH);
+
+
+
+	var letter_IJ = [
+[	0.392699082	,	0.492367734	]	,
+[	0.517054076	,	0.392699081	]	,
+[	0.392699081	,	0.268344087	]	,
+[	0.392699081	,	0.503356302	]	,
+[	0.517054076	,	2.914042249	]	,
+[	0.751469752	,	4.05343785	]	,
+[	0.392699082	,	3.779270398	]	,
+[	0.503356303	,	3.85604229	]	
+	];
+	var labels_IJ = [1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_IJ(letter_IJ,labels_IJ);
+
+
+
+	var letter_KL = [
+[	0.39269908169872414, 1.1780972450961724	]	,
+[	0.46947097296850215 , 1.444349294247098]	,
+[	0.39269908169872414 , 1.1780972450961724	]	,
+[	0.5900946415486049 , 1.1780972450961724	]	,
+[	3.534291735	,	3.40993674	]	,
+[	3.534291735	,	3.658646729	]	,
+[	3.40993674	,	3.534291735	]	,
+[	3.534291735	,	3.534291735	]	
+
+	];
+	var labels_KL = [1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_KL(letter_KL,labels_KL);
+
+
+
+	var letter_MN = [
+[	0.392699082	,	0.517054076	]	,
+[	0.392699081	,	2.322266078	]	,
+[	0.392699082	,	1.604724738	]	,
+[	0.392699082	,	0.751469752	]	,
+[	0.637677744	,	0.810923411	]	,
+[	0.392699082	,	0.503356303	]	,
+[	0.392699081	,	0.714449636	]	,
+[	0.392699082	,	0.483358969	]	
+
+	];
+	var labels_MN = [1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_MN(letter_MN,labels_MN);
+
+
+
+	var letter_OP = [
+[	5.5687356710842195, 4.517085458535846	]	,
+[	5.00541941	,	4.641440453	]	,
+[	5.624234176	,	4.319689899	]	,
+[	5.350066725	,	4.484838576	]	,
+[	3.5342917352885173 , 5.181859953353191	]	,
+[	3.289313072161653 , 5.204756714574575	]	,
+[	3.5342917352885173 , 5.204756714574575	]	,
+[	3.070644126287711 , 5.229443056630175	]	
+
+	];
+	var labels_OP = [1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_OP(letter_OP,labels_OP);
+
+
+
+	var letter_QR = [
+[	4.585941948	,	0.517054076	]	,
+[	4.484838576	,	0.28204186	]	,
+[	5.105088062	,	0.517054076	]	,
+[	4.585941948	,	0.392699082	]	,
+[	0.392699082	,	0.911845196	]	,
+[	0.751469751	,	0.85634669	]	,
+[	0.392699081	,	1.178097245	]	,
+[	0.392699082	,	1.254869136	]	
+
+	];
+	var labels_QR = [1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_QR(letter_QR,labels_QR);
+
+
+
+	var letter_ST = [
+[	4.746317392	,	4.517085459	]	,
+[	3.997939344	,	4.154541221	]	,
+[	0.392699082	,	0.637677745	]	,
+[	4.484838576	,	4.585941947	]	,
+[	0.392699082	,	2.482641523	]	,
+[	0.392699081	,	3.658646729	]	,
+[	0.451454904	,	2.063164061	]	,
+[	0.392699082	,	2.054155296	]	
+
+	];
+	var labels_ST = [1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_ST(letter_ST,labels_ST);
+
+
+
+	var letter_UV = [
+[	0.475840314	,	0.483358969	]	,
+[	0.392699081	,	3.779270398	]	,
+[	0.392699081	,	4.053437849	]	,
+[	0.268344087	,	3.534291735	]	,
+[	0.751469752	,	3.175521065	]	,
+[	0.611368028	,	3.015145621	]	,
+[	0.714449636	,	3.212541181	]	,
+[	0.503356303	,	3.409936741	]	
+
+	];
+	var labels_UV = [1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_UV(letter_UV,labels_UV);
+
+
+	var letter_WX = [
+[	0.392699082	,	3.534291735	]	,
+[	0.147720419	,	3.534291735	]	,
+[	0.517054076	,	3.175521065	]	,
+[	0.392699082	,	3.65864673	]	,
+[	6.055634902	,	4.396461789	]	,
+[	5.890486225	,	4.484838576	]	,
+[	6.055634902	,	4.154541221	]	,
+[	5.725337548	,	4.319689898	]	
+
+	];
+	var labels_WX = [1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_WX(letter_WX,labels_WX);
+
+
+
+	var letter_YZ = [
+[	0.392699082	,	4.092891051	]	,
+[	0.392699082	,	4.242918007	]	,
+[	0.392699082	,	3.893062406	]	,
+[	0.392699081	,	3.423634514	]	,
+[	1.839140414	,	1.178097245	]	,
+[	1.963495408	,	1.604724738	]	,
+[	1.963495408	,	1.880354177	]	,
+[	1.963495408	,	1.839140414	]	
+
+	];
+	var labels_YZ = [1, 1, 1, 1, -1, -1, -1, -1];
+	trainSVM_YZ(letter_YZ,labels_YZ);
+
+
+
+	var x = data1_s1	;
+	var y = data2_s1;
+
+
+
+	letter_AB[letter_AB.length] = [x, y];
+	labels_AB[letter_AB.length - 1] = 0;
+	
+	//sembarang label
+
+	letter_CD[letter_CD.length] = [x, y];
+	labels_CD[letter_CD.length - 1] = 0;
+	
+	
+
+	letter_EF[letter_EF.length] = [x, y];
+	labels_EF[letter_EF.length - 1] = 0;
+	
+	
+
+	letter_GH[letter_GH.length] = [x, y];
+	labels_GH[letter_GH.length - 1] = 0;
+	
+
+	letter_IJ[letter_IJ.length] = [x, y];
+	labels_IJ[letter_IJ.length - 1] = 0;
+	
+
+	letter_KL[letter_KL.length] = [x, y];
+	labels_KL[letter_KL.length - 1] = 0;
+
+	letter_MN[letter_MN.length] = [x, y];
+	labels_MN[letter_MN.length - 1] = 0;
+
+	letter_OP[letter_OP.length] = [x, y];
+	labels_OP[letter_OP.length - 1] = 0;
+
+	letter_QR[letter_QR.length] = [x, y];
+	labels_QR[letter_QR.length - 1] = 0;
+
+	letter_ST[letter_ST.length] = [x, y];
+	labels_ST[letter_ST.length - 1] = 0;
+
+	letter_UV[letter_UV.length] = [x, y];
+	labels_UV[letter_UV.length - 1] = 0;
+
+	letter_WX[letter_WX.length] = [x, y];
+	labels_WX[letter_WX.length - 1] = 0; 	
+
+
+
+	predict_AB(letter_AB,labels_AB);
+	predict_CD(letter_CD,labels_CD);
+	predict_EF(letter_EF,labels_EF);
+	predict_GH(letter_GH,labels_GH);
+	predict_IJ(letter_IJ,labels_IJ);
+	predict_KL(letter_KL,labels_KL);
+	predict_MN(letter_MN,labels_MN);
+	predict_OP(letter_OP,labels_OP);
+	predict_QR(letter_QR,labels_QR);
+	predict_ST(letter_ST,labels_ST);
+	predict_UV(letter_UV,labels_UV);
+	predict_WX(letter_WX,labels_WX);
+
+
+	train_classifystep1_1();
+	classifystep1_1[classifystep1_1.length] = [x, y];
+	labels_classifystep1_1[classifystep1_1.length - 1] = 0;
+	predict_classifystep1_1();
+	
+	
+	
+	//console.log(classifystep1_1Label);	
+
+	train_classifystep1_2();
+	classifystep1_2[classifystep1_2.length] = [x, y];
+	labels_classifystep1_2[classifystep1_2.length - 1] = 0;
+	predict_classifystep1_2();
+	
+	//console.log(classifystep1_2Label);
+
+	train_classifystep1_3();
+	classifystep1_3[classifystep1_3.length] = [x, y];
+	labels_classifystep1_3[classifystep1_3.length - 1] = 0;
+	predict_classifystep1_3();
+	
+	//console.log(classifystep1_3Label);
+
+	train_classifystep1_4();
+	classifystep1_4[classifystep1_4.length] = [x, y];
+	labels_classifystep1_4[classifystep1_4.length - 1] = 0;
+	predict_classifystep1_4();
+	
+	//console.log(classifystep1_4Label);
+
+	train_classifystep1_5();
+	classifystep1_5[classifystep1_5.length] = [x, y];
+	labels_classifystep1_5[classifystep1_5.length - 1] = 0;
+	predict_classifystep1_5();
+	
+	//console.log(classifystep1_5Label);
+
+	train_classifystep1_6();
+	classifystep1_6[classifystep1_6.length] = [x, y];
+	labels_classifystep1_6[classifystep1_6.length - 1] = 0;
+	predict_classifystep1_6();
+	
+	//console.log(classifystep1_6Label);
+
+
+	train_classifystep2_1();
+	classifystep2_1[classifystep2_1.length] = [x, y];
+	labels_classifystep2_1[classifystep2_1.length - 1] = 0;
+	predict_classifystep2_1();
+	
+	console.log(classifystep2_1Label);
+
+
+	train_classifystep2_2();
+	classifystep2_2[classifystep2_2.length] = [x, y];
+	labels_classifystep2_2[classifystep2_2.length - 1] = 0;
+	predict_classifystep2_2();
+	
+	console.log(classifystep2_2Label);
+
+	train_classifystep2_3();
+	classifystep2_3[classifystep2_3.length] = [x, y];
+	labels_classifystep2_3[classifystep2_3.length - 1] = 0;
+	predict_classifystep2_3();
+	
+	console.log(classifystep2_3Label);
+
+	predict_YZ(letter_YZ,labels_YZ);
+
+	train_classifystep3_1();
+	classifystep3_1[classifystep3_1.length] = [x, y];
+	labels_classifystep3_1[classifystep3_1.length - 1] = 0;
+	predict_classifystep3_1();
+	
+	console.log(classifystep3_1Label);
+
+	train_classifystep3_2();
+	classifystep3_2[classifystep3_2.length] = [x, y];
+	labels_classifystep3_2[classifystep3_2.length - 1] = 0;
+	predict_classifystep3_2();
+	
+	console.log(classifystep3_2Label);
+
+	train_classifystep4();
+	classifystep4[classifystep4.length] = [x, y];
+	labels_classifystep4[classifystep4.length - 1] = 0;
+	predict_classifystep4();
+	
+	console.log(classifystep4Label);
+	
+	train_spaceOrletter();
+	labels_classifystepFinalLabel[classifystepFinal.length] = [x, y];
+	labels_classifystepFinalLabel[classifystepFinal.length - 1] = 0;
+	predict_spaceOrletter();
+	
+	split_word();
+	
+	moves = [];
+    angleArray = [];
+	
+  data1_s1 = 0;
+  data1_s2 = 0;
+  data2_s1 = 0;
+  data2_s2 = 0;
+  data3_s1 = 0;
+  data3_s2 = 0;
+  data4_s1 = 0;
+  data4_s2 = 0;
+  data5_s1 = 0;
+  data5_s2 = 0;
+  data6_s1 = 0;
+  data6_s2 = 0;
+	
+	
+	
+}
+
+
+
+
+ 
+  var list_syllable =[
+			{id:"w1", syllable:"KVVK"}, 
+			{id:"w2", syllable:"VKVK" },
+			{id:"w3", syllable:"KVVKVKV"},
+			{id:"w4", syllable:"KVKKVV"},
+			{id:"w5", syllable:"KVKVV"},
+			{id:"w6", syllable:"VVKV"},
+			{id:"w7", syllable:"KVKVK"},
+			{id:"w8", syllable:"KVKKV"},
+			{id:"w9", syllable:"KVKKVK"},
+			{id:"w10", syllable:"KVKKVKV"},
+			//{id:"w11", syllable:"KVKKVK"},
+			{id:"w12", syllable:"VKKKKVKVK"},
+			{id:"w13", syllable:"KVKVKKVK"},
+			{id:"w14", syllable:"KVKVKVK"},
+			{id:"w15", syllable:"KVKVKV"},
+			//{id:"w16", syllable:"KVKKVKV"},
+			{id:"w17", syllable:"KVKV"},
+			{id:"w18", syllable:"VKV"},
+			{id:"w19", syllable:"VKVVK"},
+			{id:"w20", syllable:"VKKVK"},
+			{id:"w21", syllable:"KVKKKV"},
+			{id:"w22", syllable:"KVKKVKVKVK"},
+			{id:"w23", syllable:"KVKKKVKKVK"},
+			{id:"w24", syllable:"KKVKKKVKKVKV"},
+			{id:"w25", syllable:"KKVKKKVKV"},
+			{id:"w26", syllable:"KKVKKKKVKKVKV"},
+			{id:"w27", syllable:"KKVKKVK"},
+			{id:"w28", syllable:"VKKKKV"},
+			{id:"w29", syllable:"VKKVKKVKKV"},
+			{id:"w30", syllable:"VKKKVKVKVK"},
+			{id:"w31", syllable:"KVVKKVKV"},
+			{id:"w32", syllable:"KVKVKKVK"},
+			{id:"w33", syllable:"KVKKVVKVKKV"},
+			{id:"w34", syllable:"VKKVV"},
+			{id:"w35", syllable:"KVKVKK"},
+			{id:"w36", syllable:"VKKVK"},
+			{id:"w37", syllable:"KVKKKVK"},
+			{id:"w38", syllable:"KKVKVK"},
+			{id:"w39", syllable:"KVKKKKVK"},
+			{id:"w40", syllable:"KVKVKVKVK"},
+			{id:"w41", syllable:"VKKVKVK"},
+			{id:"w42", syllable:"KKVKKV"},
+			{id:"w43", syllable:"VKKKVKKV"},
+			{id:"w44", syllable:"KVVKV"},
+			{id:"w45", syllable:"VKKKVKVKV"},
+			{id:"w46", syllable:"VKKKVK"},
+			{id:"w47", syllable:"KVV"},
+			{id:"w48", syllable:"KVKVKVV"},
+			{id:"w49", syllable:"VKKKV"},
+			{id:"w50", syllable:"KVKVKKVKV"},
+			{id:"w51", syllable:"VVKK"},
+			{id:"w52", syllable:"KVKKV"},
+			{id:"w53", syllable:"KKVKKV"},
+			{id:"w54", syllable:"KVKKKVK"}			
+						]; 
+
+
+
+   
+	function split_word() {
+	var word = svm_word;
+	var syllable = "";
+	var hasil = "";
+
+	for (var i = 0; i < word.length; i++) {
+
+		if (word[i] == "A" || word[i] == "I" || word[i] == "U" || word[i] == "E" || word[i] == "O" || word[i] == "a" || word[i] == "i" || word[i] == "u" || word[i] == "e" || word[i] == "o") {
+			syllable += "V";
+		} else {
+			syllable += "K";
+		}
+		console.log(syllable);
+	}
+
+           var result = _.filter(list_syllable, function(obj) {
+
+	if (_.isEqual(obj.syllable, syllable)) {
+		hasil = obj.id;
+		console.log(obj.id);
+	}
+
+          });
+		  
+		if (hasil == 'w1') {
+		 value = word ; 
+		 word =  value.substring(0, 2) + " - " + value.substring(4, 2) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		 
+		
+         
+	
+        };
+		
+        if (hasil == 'w2') {
+	value = word;
+	word = value.substring(0, 1) + " - " + value.substring(4, 1);
+	syllable_word = word;
+	playAudio("/android_asset/www/audio/" + value.substring(0, 1) + ".mp3");
+	setTimeout(function() {
+		playAudio("/android_asset/www/audio/" + value.substring(4, 1) + ".mp3")
+	}, 500);
+	
+};
+		  
+		if (hasil == 'w3') {
+		 value = word ; 
+		 word = value.substring(0, 3) + " - " + value.substring(5, 3) + " - " + value.substring(5) ;
+		  syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 3)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5)+".mp3")}, 1000);
+         
+        };
+		
+		if (hasil == 'w4') {
+		 value = word ; 
+		 word = value.substring(0, 3) + " - " + value.substring(6, 3)  ;
+		  syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+         
+        };
+		if (hasil == 'w5') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2)  ;
+		   syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 
+        
+        };
+			if (hasil == 'w6') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(4, 2)  ;
+		    syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+       
+        };
+		if (hasil == 'w7') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2)  ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+         
+        };
+		if (hasil == 'w8') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2)  ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w9') {
+		 value = word ; 
+		 word = value.substring(0, 3) + " - " + value.substring(6, 3)  ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w10') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(5) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5)+".mp3")}, 1000);
+          
+        };
+		if (hasil == 'w11') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(6, 2) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 2)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w12') {
+		 value = word ; 
+		 word = value.substring(0, 3) + " - " + value.substring(6, 3) + " - " + value.substring(6)	;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6)+".mp3")}, 1000);
+          
+        };
+			if (hasil == 'w13') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(5);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5)+".mp3")}, 1000);
+          
+        };
+		if (hasil == 'w14') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(4);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
+          
+        };
+		if (hasil == 'w15') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(4);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
+          
+        };
+		if (hasil == 'w16') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(4);
+		  syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
+         
+        };
+		if (hasil == 'w17') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(4, 2) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w18') {
+		 value = word ; 
+		 word = value.substring(0, 1) + " - " + value.substring(3, 1) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 1)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 1)+".mp3")}, 500);
+         
+		
+        };
+		if (hasil == 'w19') {
+		 value = word ; 
+		 word = value.substring(0, 1)+ " - " + value.substring(3, 1) + " - " + value.substring(3);  
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 1)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 1)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3)+".mp3")}, 1000);
+          
+        };
+		if (hasil == 'w20') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w21') {
+		 value = word ; 
+		 word = value.substring(0, 4) + " - " + value.substring(6, 4) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 4)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w22') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2)  + " - " + value.substring(7, 5)+ " - " + value.substring(7);
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 5)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
+          syllable_word = word;
+        };
+		if (hasil == 'w23') {
+		 value = word ; 
+		 word = value.substring(0, 3) + " - " + value.substring(7, 3) + " - " + value.substring(7);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 3)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1000);
+          
+        };
+		if (hasil == 'w24') {
+		 value = word ; 
+		 word = value.substring(0, 5) + " - " + value.substring(8, 5) + " - " + value.substring(10, 8)+ " - " + value.substring(10);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 5)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(8, 5)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(10, 8)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(10)+".mp3")}, 1500);
+          
+        };
+		if (hasil == 'w25') {
+		 value = word ; 
+		 word = value.substring(0, 5) + " - " + value.substring(7, 5) + " - " + value.substring(7);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 5)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 5)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1000);
+          
+        };
+		if (hasil == 'w26') {
+		 value = word ; 
+		  word = value.substring(0, 5) + " - " + value.substring(9, 5) + " - " + value.substring(11, 9)+ " - " + value.substring(11);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 5)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(9, 5)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(11, 9)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(11)+".mp3")}, 1500);
+          
+        };
+		if (hasil == 'w27') {
+		 value = word ; 
+		  word = value.substring(0, 4) + " - " + value.substring(7, 4) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 4)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w28') {
+		 value = word ; 
+		  word = value.substring(0, 3) + " - " + value.substring(6, 3) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w29') {
+		 value = word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(8, 5)+ " - " + value.substring(8);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(8, 5)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(8)+".mp3")}, 1500);
+		  
+          
+        };
+		if (hasil == 'w30') {
+		 value = word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(7, 5)+ " - " + value.substring(7);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 5)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
+          
+        };
+		if (hasil == 'w31') {
+		 value = word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(3, 2) + " - " + value.substring(6, 3)+ " - " + value.substring(6);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6)+".mp3")}, 1500);
+          
+        };
+		if (hasil == 'w32') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(4);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
+          
+        };
+		if (hasil == 'w33') {
+		 value = word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(6, 5)+ " - " + value.substring(9, 6) + " - " + value.substring(9);
+		  syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 5)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(9,6)+".mp3")}, 1500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(9)+".mp3")}, 2000);
+          
+        };
+		if (hasil == 'w34') {
+		 value = word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w35') {
+		 value = word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(6, 2) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 2)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w36') {
+		 value = word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w37') {
+		 value = word ; 
+		  word = value.substring(0, 4) + " - " + value.substring(7, 4) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 4)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w38') {
+		 value = word ; 
+		  word = value.substring(0, 3) + " - " + value.substring(6, 3) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w39') {
+		 value = word ; 
+		  word = value.substring(0, 4) + " - " + value.substring(8, 4) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(8, 4)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w40') {
+		 value = word ; 
+		  word = value.substring(0, 3) + " - " + value.substring(4, 3) + " - " + value.substring(7, 4)+ " - " + value.substring(7);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 3)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 4)+".mp3")}, 1000);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
+          
+        };
+		if (hasil == 'w41') {
+		 value = word ; 
+		 word = value.substring(0, 1) + " - " + value.substring(4, 1) + " - " + value.substring(4);
+		 syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 1)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 1)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
+          
+        };
+		if (hasil == 'w42') {
+		 value = word ; 
+		  word = value.substring(0, 4) + " - " + value.substring(6, 4) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 4)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w43') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(6, 2) + " - " + value.substring(6);
+		 syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 2)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6)+".mp3")}, 1000);
+          
+        };
+		if (hasil == 'w44') {
+		 value = word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(3, 2) + " - " + value.substring(3);
+		 syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 2)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3)+".mp3")}, 1000);
+          
+        };
+		if (hasil == 'w45') {
+		 value = word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(7, 5)+ " - " + value.substring(7);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7,5)+".mp3")}, 1000);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
+          
+        };
+		if (hasil == 'w46') {
+		 value = word ; 
+		   word = value.substring(0, 3) + " - " + value.substring(6, 3) ;
+		   syllable_word = word;
+		   playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w47') {
+		 value = word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(3, 2) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 2)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w48') {
+		 value = word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(6, 4)+ " - " + value.substring(6);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6,4)+".mp3")}, 1000);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6)+".mp3")}, 1500);
+          
+        };
+		if (hasil == 'w49') {
+		 value = word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w50') {
+		 value = word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(7, 4)+ " - " + value.substring(7);
+		   syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7,4)+".mp3")}, 1000);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
+         
+        };
+		if (hasil == 'w51') {
+		 value = word ; 
+		  word = value.substring(0, 1) + " - " + value.substring(4, 1) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 1)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 1)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w52') {
+		 value = word ; 
+		  word = value.substring(0, 3) + " - " + value.substring(5, 3) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 3)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w53') {
+		 value = word ; 
+		  word = value.substring(0, 3) + " - " + value.substring(6, 3) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+          
+        };
+		if (hasil == 'w54') {
+		  value = word ; 
+		  word = value.substring(0, 3) + " - " + value.substring(7, 3) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 3)+".mp3")}, 500);
+          
+        };
+}  
+
+		
+       
+        
+
+        
+       </script>
+		<script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+		<script type="text/javascript" charset="utf-8" src="cordova_plugins.js"></script>
+    
+	<script type="text/javascript" charset="utf-8">
+
+        // Wait for Cordova to load
+        //
+        document.addEventListener("deviceready", onDeviceReady, false);
+
+        // Cordova is ready
+        //
+        function onDeviceReady() {
+       
+        }
+        
+        // Audio player
+        //
+          var my_media = null;
+        var mediaTimer = null;
+
+      
+        // Play audio
+        //
+        function playAudio(src) {
+            // Create Media object from src
+            my_media = new Media(src, onSuccess, onError);
+
+            // Play audio
+            my_media.play();
+
+            // Update my_media position every second
+            if (mediaTimer == null) {
+                mediaTimer = setInterval(function() {
+                    // get my_media position
+                    my_media.getCurrentPosition(
+                        // success callback
+                        function(position) {
+                            if (position > -1) {
+                                setAudioPosition((position) + " sec");
+                            }
+                        },
+                        // error callback
+                        function(e) {
+                            console.log("Error getting pos=" + e);
+                            setAudioPosition("Error: " + e);
+                        }
+                    );
+                }, 1000);
+            }
+        }
+
+        // Pause audio
+        // 
+        function pauseAudio() {
+            if (my_media) {
+                my_media.pause();
+            }
+        }
+
+        // Stop audio
+        // 
+        function stopAudio() {
+            if (my_media) {
+                my_media.stop();
+            }
+            clearInterval(mediaTimer);
+            mediaTimer = null;
+        }
+
+        // onSuccess Callback
+        //
+        function onSuccess() {
+            console.log("playAudio():Audio Success");
+        }
+
+        // onError Callback 
+        //
+        function onError(error) {
+           // alert('code: '    + error.code    + '\n' + 'message: ' + error.message + '\n');
+        }
+
+        // Set audio position
+        // 
+        function setAudioPosition(position) {
+            document.getElementById('audio_position').innerHTML = position;
+        }
+		
+		
+        
+       </script>
+</head>
+<body>
+	
+	   <div id="outer" >  
+      <div id="canvas" ></div>
+	  
+	  </div>
+	   
+	  <a class="button icon eraser" onclick="clearCanvas()" href="#"><span>Ulangi</span></a>
+	  <a class="button icon bird" onclick="recognition()" href="#"><span>Kenali Kata</span></a>
+	  <br><br><br>
+	  <div id="box" style="border-radius: 25px;border: 2px solid #197519;width: 100%;display:none "><p style="margin-left:10px" id="hasil"></p></div>
+	
+
+
+</body>
+</html>
