@@ -99,6 +99,19 @@ background: url(img/bird.png) no-repeat;
 background-size : 15px;
 }
     </style>
+	
+	<style>
+		html {
+-webkit-tap-highlight-color: rgba(0,0,0,0);
+ -webkit-tap-highlight-color: transparent;
+}
+
+button, button:hover, li:hover, a:hover , li , a , *:hover, *
+{
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+}
+		
+		</style>
   
   <!-- CSS goes in the document HEAD or added to your external stylesheet -->
 <style type="text/css">
@@ -122,6 +135,7 @@ background-size : 15px;
  var data6_s2 = 0;
  var svm_word = "";
  var syllable_word = "";
+ var syllable_id = "";
  
  function clearCanvas() {
 	context = $("#canvas1")[0].getContext('2d');
@@ -129,6 +143,10 @@ background-size : 15px;
 	moves = [];
     angleArray = [];
 	svm_word = "";
+	syllable_word = "";
+	syllable_id = "";
+	document.getElementById("hasil").innerHTML = "";
+	
   data1_s1 = 0;
   data1_s2 = 0;
   data2_s1 = 0;
@@ -148,10 +166,492 @@ background-size : 15px;
 
 function recognition() {
 	
+	
+	 if (syllable_id == 'w1') {
+		 value = svm_word ; 
+		 word =  value.substring(0, 2) + " - " + value.substring(4, 2) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		 
+		
+         
+	
+        };
+		
+        if (syllable_id == 'w2') {
+	value = svm_word;
+	word = value.substring(0, 1) + " - " + value.substring(4, 1);
+	syllable_word = word;
+	playAudio("/android_asset/www/audio/" + value.substring(0, 1) + ".mp3");
+	setTimeout(function() {
+		playAudio("/android_asset/www/audio/" + value.substring(4, 1) + ".mp3")
+	}, 500);
+	
+};
+		  
+		if (syllable_id == 'w3') {
+		 value = svm_word ; 
+		 word = value.substring(0, 3) + " - " + value.substring(5, 3) + " - " + value.substring(5) ;
+		  syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 3)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5)+".mp3")}, 1000);
+         
+        };
+		
+		if (syllable_id == 'w4') {
+		 value = svm_word ; 
+		 word = value.substring(0, 3) + " - " + value.substring(6, 3)  ;
+		  syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+         
+        };
+		if (syllable_id == 'w5') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2)  ;
+		   syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 
+        
+        };
+			if (syllable_id == 'w6') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(4, 2)  ;
+		    syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+       
+        };
+		if (syllable_id == 'w7') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2)  ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+         
+        };
+		if (syllable_id == 'w8') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2)  ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w9') {
+		 value = svm_word ; 
+		 word = value.substring(0, 3) + " - " + value.substring(6, 3)  ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w10') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(5) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5)+".mp3")}, 1000);
+          
+        };
+		if (syllable_id == 'w11') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(6, 2) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 2)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w12') {
+		 value = svm_word ; 
+		 word = value.substring(0, 3) + " - " + value.substring(6, 3) + " - " + value.substring(6)	;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6)+".mp3")}, 1000);
+          
+        };
+			if (syllable_id == 'w13') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(5);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5)+".mp3")}, 1000);
+          
+        };
+		if (syllable_id == 'w14') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(4);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
+          
+        };
+		if (syllable_id == 'w15') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(4);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
+          
+        };
+		if (syllable_id == 'w16') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(4);
+		  syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
+         
+        };
+		if (syllable_id == 'w17') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(4, 2) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w18') {
+		 value = svm_word ; 
+		 word = value.substring(0, 1) + " - " + value.substring(3, 1) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 1)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 1)+".mp3")}, 500);
+         
+		
+        };
+		if (syllable_id == 'w19') {
+		 value = svm_word ; 
+		 word = value.substring(0, 1)+ " - " + value.substring(3, 1) + " - " + value.substring(3);  
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 1)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 1)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3)+".mp3")}, 1000);
+          
+        };
+		if (syllable_id == 'w20') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w21') {
+		 value = svm_word ; 
+		 word = value.substring(0, 4) + " - " + value.substring(6, 4) ;
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 4)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w22') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(5, 2)  + " - " + value.substring(7, 5)+ " - " + value.substring(7);
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 5)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
+          syllable_word = word;
+        };
+		if (syllable_id == 'w23') {
+		 value = svm_word ; 
+		 word = value.substring(0, 3) + " - " + value.substring(7, 3) + " - " + value.substring(7);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 3)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1000);
+          
+        };
+		if (syllable_id == 'w24') {
+		 value = svm_word ; 
+		 word = value.substring(0, 5) + " - " + value.substring(8, 5) + " - " + value.substring(10, 8)+ " - " + value.substring(10);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 5)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(8, 5)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(10, 8)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(10)+".mp3")}, 1500);
+          
+        };
+		if (syllable_id == 'w25') {
+		 value = svm_word ; 
+		 word = value.substring(0, 5) + " - " + value.substring(7, 5) + " - " + value.substring(7);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 5)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 5)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1000);
+          
+        };
+		if (syllable_id == 'w26') {
+		 value = svm_word ; 
+		  word = value.substring(0, 5) + " - " + value.substring(9, 5) + " - " + value.substring(11, 9)+ " - " + value.substring(11);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 5)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(9, 5)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(11, 9)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(11)+".mp3")}, 1500);
+          
+        };
+		if (syllable_id == 'w27') {
+		 value = svm_word ; 
+		  word = value.substring(0, 4) + " - " + value.substring(7, 4) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 4)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w28') {
+		 value = svm_word ; 
+		  word = value.substring(0, 3) + " - " + value.substring(6, 3) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w29') {
+		 value = svm_word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(8, 5)+ " - " + value.substring(8);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(8, 5)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(8)+".mp3")}, 1500);
+		  
+          
+        };
+		if (syllable_id == 'w30') {
+		 value = svm_word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(7, 5)+ " - " + value.substring(7);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 5)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
+          
+        };
+		if (syllable_id == 'w31') {
+		 value = svm_word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(3, 2) + " - " + value.substring(6, 3)+ " - " + value.substring(6);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6)+".mp3")}, 1500);
+          
+        };
+		if (syllable_id == 'w32') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(4);
+		 syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
+          
+        };
+		if (syllable_id == 'w33') {
+		 value = svm_word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(6, 5)+ " - " + value.substring(9, 6) + " - " + value.substring(9);
+		  syllable_word = word;
+		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 5)+".mp3")}, 1000);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(9,6)+".mp3")}, 1500);
+		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(9)+".mp3")}, 2000);
+          
+        };
+		if (syllable_id == 'w34') {
+		 value = svm_word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w35') {
+		 value = svm_word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(6, 2) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 2)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w36') {
+		 value = svm_word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w37') {
+		 value = svm_word ; 
+		  word = value.substring(0, 4) + " - " + value.substring(7, 4) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 4)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w38') {
+		 value = svm_word ; 
+		  word = value.substring(0, 3) + " - " + value.substring(6, 3) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w39') {
+		 value = svm_word ; 
+		  word = value.substring(0, 4) + " - " + value.substring(8, 4) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(8, 4)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w40') {
+		 value = svm_word ; 
+		  word = value.substring(0, 3) + " - " + value.substring(4, 3) + " - " + value.substring(7, 4)+ " - " + value.substring(7);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 3)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 4)+".mp3")}, 1000);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
+          
+        };
+		if (syllable_id == 'w41') {
+		 value = svm_word ; 
+		 word = value.substring(0, 1) + " - " + value.substring(4, 1) + " - " + value.substring(4);
+		 syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 1)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 1)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
+          
+        };
+		if (syllable_id == 'w42') {
+		 value = svm_word ; 
+		  word = value.substring(0, 4) + " - " + value.substring(6, 4) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 4)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w43') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(6, 2) + " - " + value.substring(6);
+		 syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 2)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6)+".mp3")}, 1000);
+          
+        };
+		if (syllable_id == 'w44') {
+		 value = svm_word ; 
+		 word = value.substring(0, 2) + " - " + value.substring(3, 2) + " - " + value.substring(3);
+		 syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 2)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3)+".mp3")}, 1000);
+          
+        };
+		if (syllable_id == 'w45') {
+		 value = svm_word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(7, 5)+ " - " + value.substring(7);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7,5)+".mp3")}, 1000);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
+          
+        };
+		if (syllable_id == 'w46') {
+		 value = svm_word ; 
+		   word = value.substring(0, 3) + " - " + value.substring(6, 3) ;
+		   syllable_word = word;
+		   playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w47') {
+		 value = svm_word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(3, 2) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 2)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w48') {
+		 value = svm_word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(6, 4)+ " - " + value.substring(6);
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6,4)+".mp3")}, 1000);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6)+".mp3")}, 1500);
+          
+        };
+		if (syllable_id == 'w49') {
+		 value = svm_word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(5, 2) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w50') {
+		 value = svm_word ; 
+		  word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(7, 4)+ " - " + value.substring(7);
+		   syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7,4)+".mp3")}, 1000);
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
+         
+        };
+		if (syllable_id == 'w51') {
+		 value = svm_word ; 
+		  word = value.substring(0, 1) + " - " + value.substring(4, 1) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 1)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 1)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w52') {
+		 value = svm_word ; 
+		  word = value.substring(0, 3) + " - " + value.substring(5, 3) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 3)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w53') {
+		 value = svm_word ; 
+		  word = value.substring(0, 3) + " - " + value.substring(6, 3) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
+          
+        };
+		if (syllable_id == 'w54') {
+		  value = svm_word ; 
+		  word = value.substring(0, 3) + " - " + value.substring(7, 3) ;
+		  syllable_word = word;
+		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
+		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 3)+".mp3")}, 500);
+          
+        };
+		
 	 var box = document.getElementById('box');
      box.style.display = (box.style.display != 'none') ? 'visible' : '';
 	 document.getElementById("hasil").innerHTML = "Kata yang kamu tulis adalah : " + "<b>" + svm_word + "</b></br>" +  "Dengan Suku Kata : " + "<b>" + syllable_word + "</b>" ;
-
+     
+	 
 
 }
 
