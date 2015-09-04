@@ -4,13 +4,47 @@
 		<meta charset="UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-		<title>Google Nexus Website Menu</title>
+		<title></title>
 		<meta name="description" content="A sidebar menu as seen on the Google Nexus 7 website" />
 		<meta name="keywords" content="google nexus 7 menu, css transitions, sidebar, side menu, slide out menu" />
 		<meta name="author" content="Codrops" />
-		<link rel="shortcut icon" href="../favicon.ico">
 		<link rel="stylesheet" type="text/css" href="css/component.css" />
 		<link rel="stylesheet" type="text/css" href="css/book.css" />
+		<script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+		
+		 <script type="text/javascript" charset="utf-8">
+
+
+        document.addEventListener("deviceready", onDeviceReady, false);
+
+      
+        function onDeviceReady() {
+       
+        }
+        
+        
+        
+ 
+function doClose() {
+		navigator.notification.confirm(
+			'Keluar dari Aplikasi?',
+			exitApp,
+			'SVM HWR',
+			'Ok,Cancel'
+		);
+	}
+	
+	function exitApp(buttonIndex) {
+			if (buttonIndex == 1) {
+			navigator.app.exitApp();
+			}
+		else {
+			window.close();
+		}
+	}
+	
+
+        </script>
 	</head>
 	<body>
 		<div class="container">
@@ -22,8 +56,8 @@
 							<ul class="gn-menu">
 							
 								<li><a class="gn-icon gn-icon-illustrator" href="hwr.html">Pengenalan Tulisan Tangan</a></li>
-								<li><a class="gn-icon gn-icon-help">Petunjuk</a></li>
-								<li><a class="gn-icon gn-icon-download">Keluar</a></li>
+								<li><a class="gn-icon gn-icon-help" href="petunjuk/petunjuk.html">Petunjuk</a></li>
+								<li><a class="gn-icon gn-icon-download" onclick="doClose()" >Keluar</a></li>
 							</ul>
 						</div><!-- /gn-scroller -->
 					</nav>
@@ -62,7 +96,7 @@
 							<ul class='page'>
 								<li></li>
 								<li>
-									<a class="btn" href="#">Go</a>
+									<a class="btn" href="hwr.html">Go</a>
 								</li>
 								<li></li>
 								<li></li>

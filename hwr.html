@@ -1606,22 +1606,208 @@ function predict_spaceOrletter() {
 	//console.log(predict);
 	var obj = [19, 18, 15, 16, 14, 21, 25, 29, 32, 28, 31, 17, 27,30,22, 16, 23, 20, 26, 22,26, 33, 35, 27];
     var test = _.includes(obj,data5_s1);
-	console.log(test);	
-	console.log(data5_s1);	
-	console.log(obj);
 	
-	var last = _.last(predict);
+	
+	
+	 var first =  _.first(classifystepFinalLabel);
+	var last = _.last(classifystepFinalLabel);
 
-	if ( data5_s2 == 0 ) {
-		svm_word += _.first(classifystepFinalLabel);
+
+
+	
+	if ( last == "A" && data6_s1 <= 5  ) {
+		svm_word += "N";
 		console.log(svm_word);
 	} 
 	
-	else {
-        svm_word += _.last(classifystepFinalLabel) ;
+	if ( last == "A" && data5_s1 >= 15  ) {
+		svm_word += "A";
 		console.log(svm_word);
+	} 
 	
+	if ( last == "B"  ) {
+		svm_word += "B";
+		console.log(svm_word);
+	} 
+	
+	if ( last == "C"  ) {
+		svm_word += "C";
+		console.log(svm_word);
+	} 
+	if ( last == "D" && data6_s1 < 6  ) {
+		svm_word += "D";
+		console.log(svm_word);
+	} 
+	
+	if ( last == "D" && data6_s1 > 	5   ) {
+		svm_word += "T";
+		console.log(svm_word);
+	} 
+	
+	if ( last == "E" && data5_s1 < 5 && data6_s1 < 5 ) {
+		svm_word += " ";
+		console.log(svm_word);
+	} 
+	
+	if ( last == "E" && data5_s1 > 5 && data6_s1 > 5 ) {
+		svm_word += "E";
+		console.log(svm_word);
+	} 
+	
+	if ( last == "E" && data5_s1 > 5 && data6_s1 < 5 ) {
+		svm_word += "Z";
+		console.log(svm_word);
+	} 
+	if ( last == "F" && data6_s1 > 5  && data5_s1 > 10 ) {
+		svm_word += "F";
+		console.log(svm_word);
+	} 
+	
+	if ( last == "F" && data6_s1 < 6 && data5_s1 > 10  ) {
+		svm_word += "Q";
+		console.log(svm_word);
+	} 
+	
+	if ( last == "F" && data6_s1 < 5 && data5_s1 < 10  ) {
+		svm_word += "R";
+		console.log(svm_word);
 	}
+	
+	
+	if ( last == "G"  && data6_s1 > 6 ) {
+		svm_word += "G";
+		console.log(svm_word);
+	} 
+	if ( last == "G" && data6_s1 <= 6  ) {
+		svm_word += "S";
+		console.log(svm_word);
+	} 
+	
+	
+	if ( last == "H" && data5_s1 > 5 ) {
+		svm_word += "H";
+		console.log(svm_word);
+	} 
+	if ( last == "H" && data5_s1 < 5  ) {
+		svm_word += "I";
+		console.log(svm_word);
+	}
+	
+	if ( last == "I" && data5_s1 < 5   ) {
+		svm_word += "I";
+		console.log(svm_word);
+	} 
+	if ( last == "I" && data5_s1 > 5 ) {
+		svm_word += "H";
+		console.log(svm_word);
+	} 
+	if ( last == "J"  &&  data5_s1 >= 13 &&  data5_s1 <= 21 && data6_s1 <= 5   ) {
+		svm_word += "J";
+		console.log(svm_word);
+	} 
+	if ( last == "J" &&  data5_s1 < 13 ) {
+		svm_word += "U";
+		console.log(svm_word);
+	} 
+	if ( last == "J"  &&  data5_s1 >= 13 &&  data5_s1 >= 21 && data6_s1 < 5  ) {
+		svm_word += "W";
+		console.log(svm_word);
+	} 
+	if ( last == "J" && data6_s1 > 5 ) {
+		svm_word += "Y";
+		console.log(svm_word);
+	} 
+	
+	
+	if ( last == "K"  ) {
+		svm_word += "K";
+		console.log(svm_word);
+	} 
+	if ( last == "L"  ) {
+		svm_word += "L";
+		console.log(svm_word);
+	} 
+	if ( last == "M" && data5_s1 < 22 && data5_s1 != 17  && data5_s1 != 15) {
+		svm_word += "M";
+		console.log(svm_word);
+	} 
+	if ( last == "M" && data5_s1 > 22  ) {
+		svm_word += "X";
+		console.log(svm_word);
+	} 
+	
+	if ( last == "M" && data6_s1 == 5 && data5_s1 == 17  ) {
+		svm_word += "N";
+		console.log(svm_word);
+	} 
+	
+	
+	if ( last == "N" && data5_s1 > 10 ) {
+		svm_word += "N";
+		console.log(svm_word);
+	} 
+	if ( last == "N" && data5_s1 < 11  ) {
+		svm_word += "I";
+		console.log(svm_word);
+	} 
+	
+	
+	if ( last == "O"  ) {
+		svm_word += "O";
+		console.log(svm_word);
+	} 
+	if ( last == "P"  ) {
+		svm_word += "P";
+		console.log(svm_word);
+	} 
+	if ( last == "Q"  ) {
+		svm_word += "Q";
+		console.log(svm_word);
+	} 
+ 
+	
+	if ( last == "R"  ) {
+		svm_word += "R";
+		console.log(svm_word);
+	} 
+	if ( last == "S"  ) {
+		svm_word += "S";
+		console.log(svm_word);
+	} 
+	if ( last == "T"  ) {
+		svm_word += "T";
+		console.log(svm_word);
+	} 
+	if ( last == "U"  ) {
+		svm_word += "U";
+		console.log(svm_word);
+	} 
+	if ( last == "V"  ) {
+		svm_word += "V";
+		console.log(svm_word);
+	} 
+	if ( last == "W"  ) {
+		svm_word += "W";
+		console.log(svm_word);
+	} 
+	if ( last == "W"  ) {
+		svm_word += "W";
+		console.log(svm_word);
+	} 
+
+	if ( last == "X"  ) {
+		svm_word += "X";
+		console.log(svm_word);
+	} 
+	if ( last == "Y"  ) {
+		svm_word += "Y";
+		console.log(svm_word);
+	} 
+	if ( last == "Z"  ) {
+		svm_word += "Z";
+		console.log(svm_word);
+	} 
+	
 	//console.log(classifystepFinalLabel	);
 }
 
