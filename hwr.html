@@ -101,14 +101,13 @@ background-size : 15px;
     </style>
 	
 	<style>
-		html {
--webkit-tap-highlight-color: rgba(0,0,0,0);
- -webkit-tap-highlight-color: transparent;
+	
+a {
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-tap-highlight-color: transparent; 
 }
-
-button, button:hover, li:hover, a:hover , li , a , *:hover, *
-{
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+a:active {
+  -webkit-transform: scale3d(0.9, 0.9, 1);
 }
 		
 		</style>
@@ -696,29 +695,29 @@ $.fn.drawTouch = function() {
 		e = e.originalEvent;
 		ctx.beginPath();
 		ctx.strokeStyle="#fff";
-		x = e.changedTouches[0].pageX - 1;
-		y = e.changedTouches[0].pageY - 2;
+		x = e.changedTouches[0].clientX - 1;
+		y = e.changedTouches[0].clientY - 2;
 		ctx.moveTo(x, y);
 		ctx.strokeRect(x, y, 1, 1);
 		recording = true;
-		lastPositionX = e.changedTouches[0].pageX - $("#canvas1").offset().left;
-		lastPositionY = e.changedTouches[0].pageY - $("#canvas1").offset().top;
+		lastPositionX = e.changedTouches[0].clientX- $("#canvas1").offset().left;
+		lastPositionY = e.changedTouches[0].clientY - $("#canvas1").offset().top;
 
 	};
 
 	var move = function(e) {
 
 		e = e.originalEvent;
-		x = e.changedTouches[0].pageX - 1;
-		y = e.changedTouches[0].pageY - 2;
+		x = e.changedTouches[0].clientX - 1;
+		y = e.changedTouches[0].clientY - 2;
 		ctx.lineTo(x, y);
 		ctx.stroke();
 		
 
 
 		if (recording == true) {
-			var msx = (e.changedTouches[0].pageX - $("#canvas1").offset().left);
-			var msy = (e.changedTouches[0].pageY - $("#canvas1").offset().top);
+			var msx = (e.changedTouches[0].clientX - $("#canvas1").offset().left);
+			var msy = (e.changedTouches[0].clientY - $("#canvas1").offset().top);
 			var difx = msx - lastPositionX;
 			var dify = msy - lastPositionY;
 			var sqDist = (difx * difx + dify * dify);
@@ -730,7 +729,6 @@ $.fn.drawTouch = function() {
 				var angle = Math.atan2(difx, dify) + sectorRad / 2;
 				
 				var angleRound = Math.floor(angle * 100);
-				//f = value < 0 ? Math.abs(value) : value;
 				if (angle < 0) angle += Math.PI * 2;
 				var no = Math.floor(angle / (Math.PI * 2) * 100);
 				moves.push(anglesMap[no]);
@@ -751,7 +749,6 @@ $.fn.drawTouch = function() {
 		recording = false;
 		lastPositionX = 0;
 		lastPositionY = 0;
-		
 		data1_s2 += data1_s1 ;
 		data2_s2 += data2_s1 ;
 		data3_s2 += data3_s1 ;
@@ -819,8 +816,9 @@ $.fn.drawMouse = function() {
 				var no = Math.floor(angle / (Math.PI * 2) * 100);
 				//console.log(no);
 				moves.push(anglesMap[no]);
-				console.log(moves);
-				angleArray.push(angle);console.log(angleArray);
+				//console.log(moves);
+				angleArray.push(angle);
+				//console.log(angleArray);
 				data1_s1 = _.first(_.uniq(angleArray)) ;
 				data2_s1 = _.last(_.uniq(angleArray)) ;
 				data3_s1 = _.first(_.uniq(moves)) ;
@@ -848,13 +846,8 @@ $.fn.drawMouse = function() {
 		data4_s2 += data4_s1 ;
 		data5_s2 += data6_s1 ;
 		data6_s2 += data6_s1 ;
-		//console.log(data1_s1 + " " + data2_s1 + " " + data5_s1 + " " + data6_s1);
+		console.log(data1_s1 + " " + data2_s1 + " " + data5_s1 + " " + data6_s1);
 		mouseClick();
-		
-
-		
-		//memulai 
-		
 		
 	};
 
@@ -2115,12 +2108,12 @@ function predict_spaceOrletter() {
 
 
 	
-	if ( last == "A" && data6_s1 <= 5  ) {
+	if ( last == "A" && data6_s1 < 5   ) {
 		svm_word += "N";
 		console.log(svm_word);
 	} 
 	
-	if ( last == "A" && data5_s1 >= 15  ) {
+	if ( last == "A" && data1_s1 >= 5 ) {
 		svm_word += "A";
 		console.log(svm_word);
 	} 
@@ -2201,16 +2194,12 @@ function predict_spaceOrletter() {
 		svm_word += "H";
 		console.log(svm_word);
 	} 
-	if ( last == "J"  &&  data5_s1 >= 13 &&  data5_s1 <= 21 && data6_s1 <= 5   ) {
+	if ( last == "J"  &&  data5_s1 >= 12 &&  data5_s1 <= 21 && data6_s1 <= 5   ) {
 		svm_word += "J";
 		console.log(svm_word);
 	} 
-	if ( last == "J" &&  data5_s1 < 13 ) {
+	if ( last == "J" &&  data5_s1 < 12 ) {
 		svm_word += "U";
-		console.log(svm_word);
-	} 
-	if ( last == "J"  &&  data5_s1 >= 13 &&  data5_s1 >= 21 && data6_s1 < 5  ) {
-		svm_word += "W";
 		console.log(svm_word);
 	} 
 	if ( last == "J" && data6_s1 > 5 ) {
@@ -2218,25 +2207,30 @@ function predict_spaceOrletter() {
 		console.log(svm_word);
 	} 
 	
-	
+	if ( last == "J" && data5_s1 > 21 && data6_s1 <= 6  ) {
+		svm_word += "W";
+		console.log(svm_word);
+	}
+
 	if ( last == "K"  ) {
 		svm_word += "K";
 		console.log(svm_word);
 	} 
-	if ( last == "L"  ) {
+	if ( last == "L"  && data5_s1 < 6 ) {
 		svm_word += "L";
 		console.log(svm_word);
 	} 
-	if ( last == "M" && data5_s1 < 22 && data5_s1 != 17  && data5_s1 != 15) {
-		svm_word += "M";
-		console.log(svm_word);
-	} 
-	if ( last == "M" && data5_s1 > 22  ) {
+	if ( last == "L" && data5_s1 > 5    ) {
 		svm_word += "X";
 		console.log(svm_word);
 	} 
+	if ( last == "M" && data5_s1 > 17   ) {
+		svm_word += "M";
+		console.log(svm_word);
+	}  
 	
-	if ( last == "M" && data6_s1 == 5 && data5_s1 == 17  ) {
+
+	if ( last == "M" && data6_s1 <= 5 && data5_s1 <= 17  ) {
 		svm_word += "N";
 		console.log(svm_word);
 	} 
@@ -2290,19 +2284,18 @@ function predict_spaceOrletter() {
 		svm_word += "W";
 		console.log(svm_word);
 	} 
-	if ( last == "W"  ) {
-		svm_word += "W";
-		console.log(svm_word);
-	} 
+
 
 	if ( last == "X"  ) {
 		svm_word += "X";
 		console.log(svm_word);
 	} 
-	if ( last == "Y"  ) {
+	if ( last == "Y"   ) {
 		svm_word += "Y";
 		console.log(svm_word);
 	} 
+
+	 
 	if ( last == "Z"  ) {
 		svm_word += "Z";
 		console.log(svm_word);
@@ -2465,10 +2458,10 @@ function mouseClick() {
 
 
 	var letter_MN = [
-[	0.392699082	,	0.517054076	]	,
-[	0.392699081	,	2.322266078	]	,
-[	0.392699082	,	1.604724738	]	,
-[	0.392699082	,	0.751469752	]	,
+[	3.633960387779679, 0.49236773418988616	]	,
+[	4.886419116209472, 0.4833589688994693	]	,
+[	3.7792703984153815, 0.39269908169872414	]	,
+[	3.5342917352885173, 0.44819758694444095	]	,
 [	0.637677744	,	0.810923411	]	,
 [	0.392699082	,	0.503356303	]	,
 [	0.392699081	,	0.714449636	]	,
@@ -2544,10 +2537,10 @@ function mouseClick() {
 
 
 	var letter_WX = [
-[	0.392699082	,	3.534291735	]	,
-[	0.147720419	,	3.534291735	]	,
-[	0.517054076	,	3.175521065	]	,
-[	0.392699082	,	3.65864673	]	,
+[	0.6787505234160424, 3.0151456210419942	]	,
+[	0.8997975860910611, 3.175521065017945	]	,
+[	0.8563466906995303, 3.3074928872346314 	]	,
+[	0.48917285688131107, 3.175521065017945	]	,
 [	6.055634902	,	4.396461789	]	,
 [	5.890486225	,	4.484838576	]	,
 [	6.055634902	,	4.154541221	]	,
@@ -2839,491 +2832,13 @@ function mouseClick() {
            var result = _.filter(list_syllable, function(obj) {
 
 	if (_.isEqual(obj.syllable, syllable)) {
-		hasil = obj.id;
-		console.log(obj.id);
+		syllable_id = obj.id;
+		console.log(syllable_id);
 	}
 
           });
 		  
-		if (hasil == 'w1') {
-		 value = word ; 
-		 word =  value.substring(0, 2) + " - " + value.substring(4, 2) ;
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
-		 
 		
-         
-	
-        };
-		
-        if (hasil == 'w2') {
-	value = word;
-	word = value.substring(0, 1) + " - " + value.substring(4, 1);
-	syllable_word = word;
-	playAudio("/android_asset/www/audio/" + value.substring(0, 1) + ".mp3");
-	setTimeout(function() {
-		playAudio("/android_asset/www/audio/" + value.substring(4, 1) + ".mp3")
-	}, 500);
-	
-};
-		  
-		if (hasil == 'w3') {
-		 value = word ; 
-		 word = value.substring(0, 3) + " - " + value.substring(5, 3) + " - " + value.substring(5) ;
-		  syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 3)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5)+".mp3")}, 1000);
-         
-        };
-		
-		if (hasil == 'w4') {
-		 value = word ; 
-		 word = value.substring(0, 3) + " - " + value.substring(6, 3)  ;
-		  syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
-         
-        };
-		if (hasil == 'w5') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(5, 2)  ;
-		   syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-		 
-        
-        };
-			if (hasil == 'w6') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(4, 2)  ;
-		    syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
-       
-        };
-		if (hasil == 'w7') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(5, 2)  ;
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-         
-        };
-		if (hasil == 'w8') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(5, 2)  ;
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w9') {
-		 value = word ; 
-		 word = value.substring(0, 3) + " - " + value.substring(6, 3)  ;
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w10') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(5) ;
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5)+".mp3")}, 1000);
-          
-        };
-		if (hasil == 'w11') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(6, 2) ;
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 2)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w12') {
-		 value = word ; 
-		 word = value.substring(0, 3) + " - " + value.substring(6, 3) + " - " + value.substring(6)	;
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6)+".mp3")}, 1000);
-          
-        };
-			if (hasil == 'w13') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(5);
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5)+".mp3")}, 1000);
-          
-        };
-		if (hasil == 'w14') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(4);
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
-          
-        };
-		if (hasil == 'w15') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(4);
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
-          
-        };
-		if (hasil == 'w16') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(4);
-		  syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
-         
-        };
-		if (hasil == 'w17') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(4, 2) ;
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w18') {
-		 value = word ; 
-		 word = value.substring(0, 1) + " - " + value.substring(3, 1) ;
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 1)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 1)+".mp3")}, 500);
-         
-		
-        };
-		if (hasil == 'w19') {
-		 value = word ; 
-		 word = value.substring(0, 1)+ " - " + value.substring(3, 1) + " - " + value.substring(3);  
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 1)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 1)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3)+".mp3")}, 1000);
-          
-        };
-		if (hasil == 'w20') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(5, 2) ;
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w21') {
-		 value = word ; 
-		 word = value.substring(0, 4) + " - " + value.substring(6, 4) ;
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 4)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w22') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(5, 2)  + " - " + value.substring(7, 5)+ " - " + value.substring(7);
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 5)+".mp3")}, 1000);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
-          syllable_word = word;
-        };
-		if (hasil == 'w23') {
-		 value = word ; 
-		 word = value.substring(0, 3) + " - " + value.substring(7, 3) + " - " + value.substring(7);
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 3)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1000);
-          
-        };
-		if (hasil == 'w24') {
-		 value = word ; 
-		 word = value.substring(0, 5) + " - " + value.substring(8, 5) + " - " + value.substring(10, 8)+ " - " + value.substring(10);
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 5)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(8, 5)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(10, 8)+".mp3")}, 1000);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(10)+".mp3")}, 1500);
-          
-        };
-		if (hasil == 'w25') {
-		 value = word ; 
-		 word = value.substring(0, 5) + " - " + value.substring(7, 5) + " - " + value.substring(7);
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 5)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 5)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1000);
-          
-        };
-		if (hasil == 'w26') {
-		 value = word ; 
-		  word = value.substring(0, 5) + " - " + value.substring(9, 5) + " - " + value.substring(11, 9)+ " - " + value.substring(11);
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 5)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(9, 5)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(11, 9)+".mp3")}, 1000);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(11)+".mp3")}, 1500);
-          
-        };
-		if (hasil == 'w27') {
-		 value = word ; 
-		  word = value.substring(0, 4) + " - " + value.substring(7, 4) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 4)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w28') {
-		 value = word ; 
-		  word = value.substring(0, 3) + " - " + value.substring(6, 3) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w29') {
-		 value = word ; 
-		  word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(8, 5)+ " - " + value.substring(8);
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(8, 5)+".mp3")}, 1000);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(8)+".mp3")}, 1500);
-		  
-          
-        };
-		if (hasil == 'w30') {
-		 value = word ; 
-		  word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(7, 5)+ " - " + value.substring(7);
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 5)+".mp3")}, 1000);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
-          
-        };
-		if (hasil == 'w31') {
-		 value = word ; 
-		  word = value.substring(0, 2) + " - " + value.substring(3, 2) + " - " + value.substring(6, 3)+ " - " + value.substring(6);
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 2)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 1000);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6)+".mp3")}, 1500);
-          
-        };
-		if (hasil == 'w32') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(4);
-		 syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
-          
-        };
-		if (hasil == 'w33') {
-		 value = word ; 
-		  word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(6, 5)+ " - " + value.substring(9, 6) + " - " + value.substring(9);
-		  syllable_word = word;
-		 playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 5)+".mp3")}, 1000);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(9,6)+".mp3")}, 1500);
-		 setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(9)+".mp3")}, 2000);
-          
-        };
-		if (hasil == 'w34') {
-		 value = word ; 
-		  word = value.substring(0, 2) + " - " + value.substring(5, 2) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w35') {
-		 value = word ; 
-		  word = value.substring(0, 2) + " - " + value.substring(6, 2) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 2)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w36') {
-		 value = word ; 
-		  word = value.substring(0, 2) + " - " + value.substring(5, 2) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w37') {
-		 value = word ; 
-		  word = value.substring(0, 4) + " - " + value.substring(7, 4) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 4)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w38') {
-		 value = word ; 
-		  word = value.substring(0, 3) + " - " + value.substring(6, 3) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w39') {
-		 value = word ; 
-		  word = value.substring(0, 4) + " - " + value.substring(8, 4) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(8, 4)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w40') {
-		 value = word ; 
-		  word = value.substring(0, 3) + " - " + value.substring(4, 3) + " - " + value.substring(7, 4)+ " - " + value.substring(7);
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 3)+".mp3")}, 500);
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 4)+".mp3")}, 1000);
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
-          
-        };
-		if (hasil == 'w41') {
-		 value = word ; 
-		 word = value.substring(0, 1) + " - " + value.substring(4, 1) + " - " + value.substring(4);
-		 syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 1)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 1)+".mp3")}, 500);
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4)+".mp3")}, 1000);
-          
-        };
-		if (hasil == 'w42') {
-		 value = word ; 
-		  word = value.substring(0, 4) + " - " + value.substring(6, 4) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 4)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 4)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w43') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(6, 2) + " - " + value.substring(6);
-		 syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 2)+".mp3")}, 500);
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6)+".mp3")}, 1000);
-          
-        };
-		if (hasil == 'w44') {
-		 value = word ; 
-		 word = value.substring(0, 2) + " - " + value.substring(3, 2) + " - " + value.substring(3);
-		 syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 2)+".mp3")}, 500);
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3)+".mp3")}, 1000);
-          
-        };
-		if (hasil == 'w45') {
-		 value = word ; 
-		  word = value.substring(0, 2) + " - " + value.substring(5, 2) + " - " + value.substring(7, 5)+ " - " + value.substring(7);
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7,5)+".mp3")}, 1000);
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
-          
-        };
-		if (hasil == 'w46') {
-		 value = word ; 
-		   word = value.substring(0, 3) + " - " + value.substring(6, 3) ;
-		   syllable_word = word;
-		   playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w47') {
-		 value = word ; 
-		  word = value.substring(0, 2) + " - " + value.substring(3, 2) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(3, 2)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w48') {
-		 value = word ; 
-		  word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(6, 4)+ " - " + value.substring(6);
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6,4)+".mp3")}, 1000);
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6)+".mp3")}, 1500);
-          
-        };
-		if (hasil == 'w49') {
-		 value = word ; 
-		  word = value.substring(0, 2) + " - " + value.substring(5, 2) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 2)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w50') {
-		 value = word ; 
-		  word = value.substring(0, 2) + " - " + value.substring(4, 2) + " - " + value.substring(7, 4)+ " - " + value.substring(7);
-		   syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 2)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 2)+".mp3")}, 500);
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7,4)+".mp3")}, 1000);
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7)+".mp3")}, 1500);
-         
-        };
-		if (hasil == 'w51') {
-		 value = word ; 
-		  word = value.substring(0, 1) + " - " + value.substring(4, 1) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 1)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(4, 1)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w52') {
-		 value = word ; 
-		  word = value.substring(0, 3) + " - " + value.substring(5, 3) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(5, 3)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w53') {
-		 value = word ; 
-		  word = value.substring(0, 3) + " - " + value.substring(6, 3) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(6, 3)+".mp3")}, 500);
-          
-        };
-		if (hasil == 'w54') {
-		  value = word ; 
-		  word = value.substring(0, 3) + " - " + value.substring(7, 3) ;
-		  syllable_word = word;
-		  playAudio("/android_asset/www/audio/"+value.substring(0, 3)+".mp3");
-		  setTimeout(function() { playAudio("/android_asset/www/audio/"+value.substring(7, 3)+".mp3")}, 500);
-          
-        };
 }  
 
 		
@@ -3430,8 +2945,8 @@ function mouseClick() {
 	  
 	  </div>
 	   
-	  <a class="button icon eraser" onclick="clearCanvas()" href="#"><span>Ulangi</span></a>
-	  <a class="button icon bird" onclick="recognition()" href="#"><span>Kenali Kata</span></a>
+	  <a class="button icon eraser" onclick="clearCanvas()" href="javascript:void(0);" ontouchstart="return true;"><span>Ulangi</span></a>
+	  <a class="button icon bird" onclick="recognition()" href="javascript:void(0);" ontouchstart="return true;"><span>Kenali Kata</span></a>
 	  <br><br><br>
 	  <div id="box" style="border-radius: 25px;border: 2px solid #197519;width: 100%;display:none "><p style="margin-left:10px" id="hasil"></p></div>
 	

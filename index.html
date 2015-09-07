@@ -47,14 +47,13 @@ function doClose() {
         </script>
 		
 		<style>
-		html {
--webkit-tap-highlight-color: rgba(0,0,0,0);
- -webkit-tap-highlight-color: transparent;
+	
+a {
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-tap-highlight-color: transparent; 
 }
-
-button, button:hover, li:hover, a:hover , li , a , *:hover, *
-{
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+a:active {
+  -webkit-transform: scale3d(0.9, 0.9, 1);
 }
 		
 		</style>
@@ -63,14 +62,14 @@ button, button:hover, li:hover, a:hover , li , a , *:hover, *
 		<div class="container">
 			<ul id="gn-menu" class="gn-menu-main">
 				<li class="gn-trigger">
-					<a class="gn-icon gn-icon-menu" href="#"></a>
+					<a class="gn-icon gn-icon-menu"  href="javascript:void(0);" ontouchstart="return true;"></a>
 					<nav class="gn-menu-wrapper">
 						<div class="gn-scroller">
 							<ul class="gn-menu">
 							
-								<li><a class="gn-icon gn-icon-illustrator" href="hwr.html">Pengenalan Tulisan Tangan</a></li>
-								<li><a class="gn-icon gn-icon-help" href="petunjuk/petunjuk.html">Petunjuk</a></li>
-								<li><a class="gn-icon gn-icon-download" onclick="doClose()" >Keluar</a></li>
+								<li><a class="gn-icon gn-icon-illustrator" href="hwr.html" ontouchstart="return true;" >Pengenalan Tulisan Tangan</a></li>
+								<li><a class="gn-icon gn-icon-help" href="petunjuk/petunjuk.html" ontouchstart="return true;" >Petunjuk</a></li>
+								<li><a class="gn-icon gn-icon-download" onclick="doClose()" ontouchstart="return true;">Keluar</a></li>
 							</ul>
 						</div><!-- /gn-scroller -->
 					</nav>
@@ -109,7 +108,7 @@ button, button:hover, li:hover, a:hover , li , a , *:hover, *
 							<ul class='page'>
 								<li></li>
 								<li>
-									<a class="btn" href="hwr.html">Go</a>
+									<a class="btn" href="hwr.html" ontouchstart="return true;">Go</a>
 								</li>
 								<li></li>
 								<li></li>
