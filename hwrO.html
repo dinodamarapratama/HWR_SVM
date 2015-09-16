@@ -1,0 +1,2496 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript"src="js/lodash.min.js"></script>
+<script src="js/svm.js"></script>
+<style type="text/css">
+body {
+    font-family:'Open Sans',sans-serif;
+    background:#fff
+}
+
+#content {
+    overflow:hidden;
+    background-color:#ddd
+}
+
+#canvas {
+    cursor:crosshair;
+    background-color:#fff
+}
+
+a.button {
+    background-image:-moz-linear-gradient(top,#fff,#dbdbdb);
+    background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fff),color-stop(1,#dbdbdb));
+    filter:progid:DXImageTransform.Microsoft.gradient (startColorStr='#fff',EndColorStr='#dbdbdb');
+    -ms-filter:"progid:DXImageTransform.Microsoft.gradient(startColorStr='#ffffff',EndColorStr='#dbdbdb')";
+    border:1px solid #fff;
+    -moz-box-shadow:0 0 4px rgba(0,0,0,0.4);
+    -webkit-box-shadow:0 0 4px rgba(0,0,0,0.4);
+    box-shadow:0 0 4px rgba(0,0,0,0.4);
+    border-radius:18px;
+    -webkit-border-radius:18px;
+    -moz-border-radius:18px;
+	-webkit-transform: scale3d(0.9, 0.9, 1);
+    padding:5px 15px;
+    text-decoration:none;
+    text-shadow:#fff 0 1px 0;
+    float:left;
+    margin-right:5px;
+    margin-bottom:15px;
+    display:block;
+    color:#597390;
+    line-height:24px;
+    font-size:15px;
+    font-weight:700
+}
+
+a.button:hover {
+    background-image:-moz-linear-gradient(top,#fff,#eee);
+    background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fff),color-stop(1,#eee));
+    filter:progid:DXImageTransform.Microsoft.gradient (startColorStr='#fff',EndColorStr='#eee');
+    -ms-filter:"progid:DXImageTransform.Microsoft.gradient\A (startColorStr='#ffffff',EndColorStr='#eeeeee')";
+    color:#000;
+    display:block
+}
+
+a.button:active {
+    background-image:-moz-linear-gradient(top,#dbdbdb,#fff);
+    background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#dbdbdb),color-stop(1,#fff));
+    filter:progid:DXImageTransform.Microsoft.gradient (startColorStr='#dbdbdb',EndColorStr='#fff');
+    -ms-filter:"progid:DXImageTransform.Microsoft.gradient\A (startColorStr='#dbdbdb',EndColorStr='#ffffff')";
+	-webkit-transform: scale3d(0.9, 0.9, 1);
+    text-shadow:0 -1px 0 rgba(255,255,255,0.5);
+	
+    margin-top:1px
+	
+}
+
+a.button {
+    border:1px solid #979797
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    -webkit-tap-highlight-color: transparent; /* For some Androids */
+}
+
+
+a.button.icon {
+    padding-left:11px
+}
+
+a.button.icon.eraser span {
+    padding-left:20px;
+    background:url(img/eraser.png) no-repeat;
+    background-size:15px
+}
+
+a.button.icon.bird span {
+    padding-left:20px;
+    background:url(img/bird.png) no-repeat;
+    background-size:15px
+}
+</style>
+	
+
+
+ <script type="text/javascript">
+
+    var first_angle = 0;
+    var last_angle = 0;
+    var sumAngleMap = 0;
+    var sumUniqueMoves = 0;
+    var svm_word = "";
+    var syllable_word = "";
+    var syllable_id = "";
+    var ctx, color = "#fff";
+ 
+ function clearCanvas() {
+    context = $("#canvas1")[0].getContext('2d');
+    context.clearRect(0, 0, $("#canvas1")[0].width, $("#canvas1")[0].height);
+    moves = [];
+    angleArray = [];
+    svm_word = "";
+    syllable_word = "";
+    syllable_id = "";
+    first_angle = 0;
+    data1_s2 = 0;
+    last_angle = 0;
+    sumAngleMap = 0;
+    sumUniqueMoves = 0;
+    var box = document.getElementById('box');
+    box.style.display = (box.style.display != 'visible') ? 'none' : '';
+    document.getElementById("hasil").innerHTML = "";
+}
+
+
+function recognition() {
+    if (syllable_id == 'w1') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(4, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w2') {
+        value = svm_word;
+        word = value.substring(0, 1) + " - " + value.substring(4, 1);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 1) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 1) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w3') {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(5, 3) +
+            " - " + value.substring(5);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 3) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w4') {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(6, 3);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 3) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w5') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w6') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(4, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w7') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w8' && svm_word.indexOf('ny') !== -1) {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w8' && svm_word.indexOf('ng') !== -1) {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w8' && svm_word.indexOf('ny') == -1) {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(5, 3);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 3) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w8' && svm_word.indexOf('ng') == -1) {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(5, 3);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 3) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w9') {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(6, 3);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 3) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w10') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2) +
+            " - " + value.substring(5);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w11') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(6, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w12') {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(6, 3) +
+            " - " + value.substring(6);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 3) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w13') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2) +
+            " - " + value.substring(5);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w14') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(4, 2) +
+            " - " + value.substring(4);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w15') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(4, 2) +
+            " - " + value.substring(4);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w16') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(4, 2) +
+            " - " + value.substring(4);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w17') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(4, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w18') {
+        value = svm_word;
+        word = value.substring(0, 1) + " - " + value.substring(3, 1);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 1) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                3, 1) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w19') {
+        value = svm_word;
+        word = value.substring(0, 1) + " - " + value.substring(3, 1) +
+            " - " + value.substring(3);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 1) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                3, 1) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                3) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w20') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w21') {
+        value = svm_word;
+        word = value.substring(0, 4) + " - " + value.substring(6, 4);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 4) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 4) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w22') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2) +
+            " - " + value.substring(7, 5) + " - " + value.substring(7);
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7, 5) + ".mp3")
+        }, 1000);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7) + ".mp3")
+        }, 1500);
+        syllable_word = word;
+    }
+    if (syllable_id == 'w23') {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(7, 3) +
+            " - " + value.substring(7);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7, 3) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w24') {
+        value = svm_word;
+        word = value.substring(0, 5) + " - " + value.substring(8, 5) +
+            " - " + value.substring(10, 8) + " - " + value.substring(10);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 5) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                8, 5) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                10, 8) + ".mp3")
+        }, 1000);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                10) + ".mp3")
+        }, 1500);
+    }
+    if (syllable_id == 'w25') {
+        value = svm_word;
+        word = value.substring(0, 5) + " - " + value.substring(7, 5) +
+            " - " + value.substring(7);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 5) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7, 5) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w26') {
+        value = svm_word;
+        word = value.substring(0, 5) + " - " + value.substring(9, 5) +
+            " - " + value.substring(11, 9) + " - " + value.substring(11);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 5) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                9, 5) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                11, 9) + ".mp3")
+        }, 1000);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                11) + ".mp3")
+        }, 1500);
+    }
+    if (syllable_id == 'w27') {
+        value = svm_word;
+        word = value.substring(0, 4) + " - " + value.substring(7, 4);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 4) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7, 4) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w28') {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(6, 3);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 3) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w29') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2) +
+            " - " + value.substring(8, 5) + " - " + value.substring(8);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                8, 5) + ".mp3")
+        }, 1000);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                8) + ".mp3")
+        }, 1500);
+    }
+    if (syllable_id == 'w30') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2) +
+            " - " + value.substring(7, 5) + " - " + value.substring(7);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7, 5) + ".mp3")
+        }, 1000);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7) + ".mp3")
+        }, 1500);
+    }
+    if (syllable_id == 'w31') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(3, 2) +
+            " - " + value.substring(6, 3) + " - " + value.substring(6);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                3, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 3) + ".mp3")
+        }, 1000);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6) + ".mp3")
+        }, 1500);
+    }
+    if (syllable_id == 'w32') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(4, 2) +
+            " - " + value.substring(4);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w33') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2) +
+            " - " + value.substring(6, 5) + " - " + value.substring(9, 6) +
+            " - " + value.substring(9);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 5) + ".mp3")
+        }, 1000);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                9, 6) + ".mp3")
+        }, 1500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                9) + ".mp3")
+        }, 2000);
+    }
+    if (syllable_id == 'w34') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w35') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(6, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w36') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w37') {
+        value = svm_word;
+        word = value.substring(0, 4) + " - " + value.substring(7, 4);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 4) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7, 4) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w38') {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(6, 3);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 3) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w39') {
+        value = svm_word;
+        word = value.substring(0, 4) + " - " + value.substring(8, 4);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 4) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                8, 4) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w40') {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(4, 3) +
+            " - " + value.substring(7, 4) + " - " + value.substring(7);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 3) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7, 4) + ".mp3")
+        }, 1000);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7) + ".mp3")
+        }, 1500);
+    }
+    if (syllable_id == 'w41') {
+        value = svm_word;
+        word = value.substring(0, 1) + " - " + value.substring(4, 1) +
+            " - " + value.substring(4);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 1) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 1) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w42') {
+        value = svm_word;
+        word = value.substring(0, 4) + " - " + value.substring(6, 4);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 4) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 4) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w43') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(6, 2) +
+            " - " + value.substring(6);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w44') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(3, 2) +
+            " - " + value.substring(3);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                3, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                3) + ".mp3")
+        }, 1000);
+    }
+    if (syllable_id == 'w45') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2) +
+            " - " + value.substring(7, 5) + " - " + value.substring(7);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7, 5) + ".mp3")
+        }, 1000);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7) + ".mp3")
+        }, 1500);
+    }
+    if (syllable_id == 'w46') {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(6, 3);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 3) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w47') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(3, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                3, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w48') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(4, 2) +
+            " - " + value.substring(6, 4) + " - " + value.substring(6);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 4) + ".mp3")
+        }, 1000);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6) + ".mp3")
+        }, 1500);
+    }
+    if (syllable_id == 'w49') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(5, 2);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                5, 2) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w50') {
+        value = svm_word;
+        word = value.substring(0, 2) + " - " + value.substring(4, 2) +
+            " - " + value.substring(7, 4) + " - " + value.substring(7);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 2) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 2) + ".mp3")
+        }, 500);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7, 4) + ".mp3")
+        }, 1000);
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7) + ".mp3")
+        }, 1500);
+    }
+    if (syllable_id == 'w51') {
+        value = svm_word;
+        word = value.substring(0, 1) + " - " + value.substring(4, 1);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 1) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                4, 1) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w53') {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(6, 3);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                6, 3) + ".mp3")
+        }, 500);
+    }
+    if (syllable_id == 'w54') {
+        value = svm_word;
+        word = value.substring(0, 3) + " - " + value.substring(7, 3);
+        syllable_word = word;
+        playAudio("/android_asset/www/audio/" + value.substring(0, 3) +
+            ".mp3");
+        setTimeout(function() {
+            playAudio("/android_asset/www/audio/" + value.substring(
+                7, 3) + ".mp3")
+        }, 500);
+    }
+    var box = document.getElementById('box');
+    box.style.display = (box.style.display != 'none') ? 'visible' : '';
+	document.getElementById("hasil").style.font = "italic 15px Georgia, serif";
+    document.getElementById("hasil").innerHTML =
+        "Kata yang kamu tulis adalah : " + "<b>" + svm_word.toLowerCase() + "</b></br>" +
+        "Dengan Suku Kata : " + "<b>" + syllable_word.toLowerCase() + "</b>";
+}
+
+$(document).ready(function() {
+	newCanvas();
+});
+
+
+var recording = false;
+var lastPositionX = 0;
+var lastPositionY = 0;
+var moves = new Array;
+var angleArray = new Array;
+var anglesMap = new Array;
+var sectorRad = Math.PI * 2 / 8;
+var step = Math.PI * 2 / 100;
+var sector;
+for (var i = -sectorRad / 2; i <= Math.PI * 2 - sectorRad / 2; i += step) {
+    sector = Math.floor((i + sectorRad / 2) / sectorRad);
+    anglesMap.push(sector);
+}
+
+function newCanvas() {
+    var canvas = '<canvas id="canvas1"  width="' + ($(window).width()) +
+        '" height="' + ($(window).height() - 200) +
+        '" style="border:0px solid #190c00; max-width: 100%;height: auto;background:url(img/board.jpg);background-position: center top; background-size: 100% 100%;background-repeat: no-repeat;" ></canvas>';
+    $("#canvas").html(canvas);
+    ctx = document.getElementById("canvas1").getContext("2d");
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+    drawTouch();
+}
+
+var drawTouch = function() {
+    var clicked = 0;
+    var start = function(e) {
+        clicked = 1;
+        ctx.beginPath();
+        x = e.changedTouches[0].pageX - 1;
+        y = e.changedTouches[0].pageY - 2;
+        ctx.moveTo(x, y);
+        ctx.strokeRect(x, y, 1, 1);
+        lastPositionX = e.changedTouches[0].pageX - $("#canvas1").offset()
+            .left;
+        lastPositionY = e.changedTouches[0].pageY - $("#canvas1").offset()
+            .top;
+        recording = true;
+    };
+    var move = function(e) {
+        if (clicked) {
+            e.preventDefault();
+            x = e.changedTouches[0].pageX - 1;
+            y = e.changedTouches[0].pageY - 2;
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        }
+        if (recording == true) {
+            var msx = (e.changedTouches[0].pageX - $("#canvas1").offset()
+                .left);
+            var msy = (e.changedTouches[0].pageY - $("#canvas1").offset()
+                .top);
+            var difx = msx - lastPositionX;
+            var dify = msy - lastPositionY;
+            var sqDist = (difx * difx + dify * dify);
+            var sqPrec = (8 * 8);
+            if (sqDist > sqPrec) {
+                lastPositionX = msx;
+                lastPositionY = msy;
+                var angle = Math.atan2(difx, dify) + sectorRad / 2;
+                var angleRound = Math.floor(angle * 100);
+                if (angle < 0) angle += Math.PI * 2;
+                var no = Math.floor(angle / (Math.PI * 2) * 100);
+                moves.push(anglesMap[no]);
+                angleArray.push(angle);
+                first_angle = _.first(_.uniq(angleArray));
+                last_angle = _.last(_.uniq(angleArray));
+                sumAngleMap = _.uniq(angleArray).length;
+                sumUniqueMoves = _.uniq(moves).length;
+            }
+        }
+    };
+    var stop = function(e) {
+        recording = false;
+        lastPositionX = 0;
+        lastPositionY = 0;
+        classification();
+    };
+    document.getElementById("canvas1").addEventListener("touchstart", start,
+        false);
+    document.getElementById("canvas1").addEventListener("touchmove", move,
+        false);
+    document.getElementById("canvas1").addEventListener("touchend", stop,
+        false);
+};
+  
+  
+var svmC = 1.0;
+var svm = new svmjs.SVM();
+var classifystep1_1 = [];
+var classifystep1_1Label = [];
+var labels_classifystep1_1 = [];
+var classifystep1_2 = [];
+var classifystep1_2Label = [];
+var labels_classifystep1_2 = [];
+var classifystep1_3 = [];
+var classifystep1_3Label = [];
+var labels_classifystep1_3 = [];
+var classifystep1_4 = [];
+var classifystep1_4Label = [];
+var labels_classifystep1_4 = [];
+var classifystep1_5 = [];
+var classifystep1_5Label = [];
+var labels_classifystep1_5 = [];
+var classifystep1_6 = [];
+var classifystep1_6Label = [];
+var labels_classifystep1_6 = [];
+var classifystep2_1 = []; //step2_1
+var classifystep2_1Label = [];
+var labels_classifystep2_1 = [];
+var classifystep2_2 = [];
+var classifystep2_2Label = [];
+var labels_classifystep2_2 = [];
+var classifystep2_3 = [];
+var classifystep2_3Label = [];
+var labels_classifystep2_3 = [];
+var classifystep3_1 = [];
+var classifystep3_1Label = [];
+var labels_classifystep3_1 = [];
+var classifystep3_2 = [];
+var classifystep3_2Label = [];
+var labels_classifystep3_2 = [];
+var classifystep4 = [];
+var classifystep4Label = [];
+var labels_classifystep4 = [];
+var classifystepFinal = [
+    [1.9634954084936207, 1.9634954084936207],
+    [1.9634954084936207, 1.9634954084936207],
+    [1.9634954084936207, 1.9634954084936207],
+    [1.9634954084936207, 1.9634954084936207]
+];
+var classifystepFinalLabel = [" "];
+var labels_classifystepFinalLabel = [1, 1, 1, 1];
+
+
+
+function predict_AB(letter_AB, labels_AB) {
+    trainstats = svm.train(letter_AB, labels_AB, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(letter_AB);
+    for (var i = 0; i < letter_AB.length; i++) {
+        predict = svm.predict(letter_AB);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystep1_1.push(letter_AB[i]);
+            labels_classifystep1_1.push(1);
+        }
+        classifystep1_1Label.push('A');  
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystep1_1.push(letter_AB[i]);
+            labels_classifystep1_1.push(1);
+        }
+        classifystep1_1Label.push('B');  
+    }
+}
+
+function predict_CD(letter_CD, labels_CD) {
+        trainstats = svm.train(letter_CD, labels_CD, {
+            kernel: 'linear',
+            C: svmC,
+            lastiter: 1000
+        });
+        var marg = svm.margins(letter_CD);
+        for (var i = 0; i < letter_CD.length; i++) {
+            predict = svm.predict(letter_CD);
+        }
+        var last = _.last(predict);
+        if (last == 1) {
+            for (i = 0; i < 4; i++) {
+                classifystep1_1.push(letter_CD[i]);
+                labels_classifystep1_1.push(-1);
+            }
+            classifystep1_1Label.push('C');  
+        } else {
+            for (i = 4; i < 8; i++) {
+                classifystep1_1.push(letter_CD[i]);
+                labels_classifystep1_1.push(-1);
+            }
+            classifystep1_1Label.push('D');  
+        }
+    }
+    //classifystep1_2
+
+function predict_EF(letter_EF, labels_EF) {
+    trainstats = svm.train(letter_EF, labels_EF, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(letter_EF);
+    for (var i = 0; i < letter_EF.length; i++) {
+        predict = svm.predict(letter_EF);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystep1_2.push(letter_EF[i]);
+            labels_classifystep1_2.push(1);
+        }
+        classifystep1_2Label.push('E');  
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystep1_2.push(letter_EF[i]);
+            labels_classifystep1_2.push(1);
+        }
+        classifystep1_2Label.push('F'); 
+    }
+}
+
+function predict_GH(letter_GH, labels_GH) {
+        trainstats = svm.train(letter_GH, labels_GH, {
+            kernel: 'linear',
+            C: svmC,
+            lastiter: 1000
+        });
+        var marg = svm.margins(letter_GH);
+        for (var i = 0; i < letter_GH.length; i++) {
+            predict = svm.predict(letter_GH);
+        }
+        var last = _.last(predict);
+        if (last == 1) {
+            for (i = 0; i < 4; i++) {
+                classifystep1_2.push(letter_GH[i]);
+                labels_classifystep1_2.push(-1);
+            }
+            classifystep1_2Label.push('G');  
+        } else {
+            for (i = 4; i < 8; i++) {
+                classifystep1_2.push(letter_GH[i]);
+                labels_classifystep1_2.push(-1);
+            }
+            classifystep1_2Label.push('H');	  
+        }
+    }
+    //classifystep1_3
+
+function predict_IJ(letter_IJ, labels_IJ) {
+    trainstats = svm.train(letter_IJ, labels_IJ, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(letter_IJ);
+    for (var i = 0; i < letter_IJ.length; i++) {
+        predict = svm.predict(letter_IJ);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystep1_3.push(letter_IJ[i]);
+            labels_classifystep1_3.push(1);
+        }
+        classifystep1_3Label.push('I');  
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystep1_3.push(letter_IJ[i]);
+            labels_classifystep1_3.push(1);
+        }
+        classifystep1_3Label.push('J'); 
+    }
+}
+
+function predict_KL(letter_KL, labels_KL) {
+        trainstats = svm.train(letter_KL, labels_KL, {
+            kernel: 'linear',
+            C: svmC,
+            lastiter: 1000
+        });
+        var marg = svm.margins(letter_KL);
+        for (var i = 0; i < letter_KL.length; i++) {
+            predict = svm.predict(letter_KL);
+        }
+        var last = _.last(predict);
+        if (last == 1) {
+            for (i = 0; i < 4; i++) {
+                classifystep1_3.push(letter_KL[i]);
+                labels_classifystep1_3.push(-1);
+            }
+            classifystep1_3Label.push('K');  
+        } else {
+            for (i = 4; i < 8; i++) {
+                classifystep1_3.push(letter_KL[i]);
+                labels_classifystep1_3.push(-1);
+            }
+            classifystep1_3Label.push('L');	  
+        }
+    }
+    //classifystep1_4
+
+function predict_MN(letter_MN, labels_MN) {
+    trainstats = svm.train(letter_MN, labels_MN, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(letter_MN);
+    for (var i = 0; i < letter_MN.length; i++) {
+        predict = svm.predict(letter_MN);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystep1_4.push(letter_MN[i]);
+            labels_classifystep1_4.push(1);
+        }
+        classifystep1_4Label.push('M');	  
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystep1_4.push(letter_MN[i]);
+            labels_classifystep1_4.push(1);
+        }
+        classifystep1_4Label.push('N');	  
+    }
+}
+
+function predict_OP(letter_OP, labels_OP) {
+    trainstats = svm.train(letter_OP, labels_OP, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(letter_OP);
+    for (var i = 0; i < letter_OP.length; i++) {
+        predict = svm.predict(letter_OP);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystep1_4.push(letter_OP[i]);
+            labels_classifystep1_4.push(-1);
+        }
+        classifystep1_4Label.push('O');	  
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystep1_4.push(letter_OP[i]);
+            labels_classifystep1_4.push(-1);
+        }
+        classifystep1_4Label.push('P');	  
+    }
+}
+
+function predict_YZ(letter_YZ, labels_YZ) {
+        trainstats = svm.train(letter_YZ, labels_YZ, {
+            kernel: 'linear',
+            C: svmC,
+            lastiter: 1000
+        });
+        var marg = svm.margins(letter_YZ);
+        for (var i = 0; i < letter_YZ.length; i++) {
+            predict = svm.predict(letter_YZ);
+        }
+        var last = _.last(predict);
+        if (last == 1) {
+            for (i = 0; i < 4; i++) {
+                classifystep3_2.push(letter_YZ[i]);
+                labels_classifystep3_2.push(1);
+            }
+            classifystep3_2Label.push('Y');  
+        } else {
+            for (i = 4; i < 8; i++) {
+                classifystep3_2.push(letter_YZ[i]);
+                labels_classifystep3_2.push(1);
+            }
+            classifystep3_2Label.push('Z');  
+        }
+    }
+
+function predict_QR(letter_QR, labels_QR) {
+    trainstats = svm.train(letter_QR, labels_QR, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(letter_QR);
+    for (var i = 0; i < letter_QR.length; i++) {
+        predict = svm.predict(letter_QR);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystep1_5.push(letter_QR[i]);
+        }
+        classifystep1_5Label.push('Q');  
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystep1_5.push(letter_QR[i]);
+        }
+        classifystep1_5Label.push('R');  
+    }
+}
+
+function predict_ST(letter_ST, labels_ST) {
+        trainstats = svm.train(letter_ST, labels_ST, {
+            kernel: 'linear',
+            C: svmC,
+            lastiter: 1000
+        });
+        var marg = svm.margins(letter_ST);
+        for (var i = 0; i < letter_ST.length; i++) {
+            predict = svm.predict(letter_ST);
+        }
+        var last = _.last(predict);
+        if (last == 1) {
+            for (i = 0; i < 4; i++) {
+                classifystep1_5.push(letter_ST[i]);
+            }
+            classifystep1_5Label.push('S');	  
+        } else {
+            for (i = 4; i < 8; i++) {
+                classifystep1_5.push(letter_ST[i]);
+            }
+            classifystep1_5Label.push('T');  
+        }
+    }
+
+function predict_UV(letter_UV, labels_UV) {
+    trainstats = svm.train(letter_UV, labels_UV, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(letter_UV);
+    for (var i = 0; i < letter_UV.length; i++) {
+        predict = svm.predict(letter_UV);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystep1_6.push(letter_UV[i]);
+        }
+        classifystep1_6Label.push('U');	  
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystep1_6.push(letter_UV[i]);
+        }
+        classifystep1_6Label.push('V');	  
+    }
+}
+
+function predict_WX(letter_WX, labels_WX) {
+        trainstats = svm.train(letter_WX, labels_WX, {
+            kernel: 'linear',
+            C: svmC,
+            lastiter: 1000
+        });
+        var marg = svm.margins(letter_WX);
+        for (var i = 0; i < letter_WX.length; i++) {
+            predict = svm.predict(letter_WX);
+        }
+        var last = _.last(predict);
+        if (last == 1) {
+            for (i = 0; i < 4; i++) {
+                classifystep1_6.push(letter_WX[i]);
+            }
+            classifystep1_6Label.push('W');  
+        } else {
+            for (i = 4; i < 8; i++) {
+                classifystep1_6.push(letter_WX[i]);
+            }
+            classifystep1_6Label.push('X');	  
+        }
+    }
+
+function predict_classifystep1_1() {
+        trainstats = svm.train(classifystep1_1, labels_classifystep1_1, {
+            kernel: 'linear',
+            C: svmC,
+            lastiter: 1000
+        });
+        var marg = svm.margins(classifystep1_1);
+        for (var i = 0; i < classifystep1_1.length; i++) {
+            predict = svm.predict(classifystep1_1);
+        }
+        var last = _.last(predict);
+        if (last == 1) {
+            for (i = 0; i < 4; i++) {
+                classifystep2_1.push(classifystep1_1[i]);
+                labels_classifystep2_1.push(1);
+            }
+            classifystep2_1Label.push(_.first(classifystep1_1Label));	  
+        } else {
+            for (i = 4; i < 8; i++) {
+                classifystep2_1.push(classifystep1_1[i]);
+                labels_classifystep2_1.push(1);
+            }
+            classifystep2_1Label.push(_.last(classifystep1_1Label));
+        }
+    }
+
+function predict_classifystep1_2() {
+        trainstats = svm.train(classifystep1_2, labels_classifystep1_2, {
+            kernel: 'linear',
+            C: svmC,
+            lastiter: 1000
+        });
+        var marg = svm.margins(classifystep1_2);
+        for (var i = 0; i < classifystep1_2.length; i++) {
+            predict = svm.predict(classifystep1_2);
+        }
+        var last = _.last(predict);
+        if (last == 1) {
+            for (i = 0; i < 4; i++) {
+                classifystep2_1.push(classifystep1_2[i]);
+                labels_classifystep2_1.push(-1);
+            }
+            classifystep2_1Label.push(_.first(classifystep1_2Label));  
+        } else {
+            for (i = 4; i < 8; i++) {
+                classifystep2_1.push(classifystep1_2[i]);
+                labels_classifystep2_1.push(-1);
+            }
+            classifystep2_1Label.push(_.last(classifystep1_2Label));
+        }
+    }
+
+function predict_classifystep1_3() {
+        trainstats = svm.train(classifystep1_3, labels_classifystep1_3, {
+            kernel: 'linear',
+            C: svmC,
+            lastiter: 1000
+        });
+        var marg = svm.margins(classifystep1_3);
+        for (var i = 0; i < classifystep1_3.length; i++) {
+            predict = svm.predict(classifystep1_3);
+        }
+        var last = _.last(predict);
+        if (last == 1) {
+            for (i = 0; i < 4; i++) {
+                classifystep2_2.push(classifystep1_3[i]);
+                labels_classifystep2_2.push(1);
+            }
+            classifystep2_2Label.push(_.first(classifystep1_3Label));  
+        } else {
+            for (i = 4; i < 8; i++) {
+                classifystep2_2.push(classifystep1_3[i]);
+                labels_classifystep2_2.push(1);
+            }
+            classifystep2_2Label.push(_.last(classifystep1_3Label));  
+        }
+    }
+
+function predict_classifystep1_4() {
+        trainstats = svm.train(classifystep1_4, labels_classifystep1_4, {
+            kernel: 'linear',
+            C: svmC,
+            lastiter: 1000
+        });
+        var marg = svm.margins(classifystep1_4);
+        for (var i = 0; i < classifystep1_4.length; i++) {
+            predict = svm.predict(classifystep1_4);
+        }
+        var last = _.last(predict);
+        if (last == 1) {
+            for (i = 0; i < 4; i++) {
+                classifystep2_2.push(classifystep1_4[i]);
+                labels_classifystep2_2.push(-1);
+            }
+            classifystep2_2Label.push(_.first(classifystep1_4Label));	  
+        } else {
+            for (i = 4; i < 8; i++) {
+                classifystep2_2.push(classifystep1_4[i]);
+                labels_classifystep2_2.push(-1);
+            }
+            classifystep2_2Label.push(_.last(classifystep1_4Label));	  
+        }
+    }
+
+function predict_classifystep1_5() {
+        trainstats = svm.train(classifystep1_5, labels_classifystep1_5, {
+            kernel: 'linear',
+            C: svmC,
+            lastiter: 1000
+        });
+        var marg = svm.margins(classifystep1_5);
+        for (var i = 0; i < classifystep1_5.length; i++) {
+            predict = svm.predict(classifystep1_5);
+        }
+        var last = _.last(predict);
+        if (last == 1) {
+            for (i = 0; i < 4; i++) {
+                classifystep2_3.push(classifystep1_5[i]);
+                labels_classifystep2_3.push(1);
+            }
+            classifystep2_3Label.push(_.first(classifystep1_5Label));	  
+        } else {
+            for (i = 4; i < 8; i++) {
+                classifystep2_3.push(classifystep1_5[i]);
+                labels_classifystep2_3.push(1);
+            }
+            classifystep2_3Label.push(_.last(classifystep1_5Label));  
+        }
+    }
+
+function predict_classifystep1_6() {
+        trainstats = svm.train(classifystep1_6, labels_classifystep1_6, {
+            kernel: 'linear',
+            C: svmC,
+            lastiter: 1000
+        });
+        var marg = svm.margins(classifystep1_6);
+        for (var i = 0; i < classifystep1_6.length; i++) {
+            predict = svm.predict(classifystep1_6);
+        }
+        var last = _.last(predict);
+        if (last == 1) {
+            for (i = 0; i < 4; i++) {
+                classifystep2_3.push(classifystep1_6[i]);
+                labels_classifystep2_3.push(-1);
+            }
+            classifystep2_3Label.push(_.first(classifystep1_6Label));
+        } else {
+            for (i = 4; i < 8; i++) {
+                classifystep2_3.push(classifystep1_6[i]);
+                labels_classifystep2_3.push(-1);
+            }
+            classifystep2_3Label.push(_.last(classifystep1_6Label));  
+        }
+    }
+
+function predict_classifystep2_1() {
+    trainstats = svm.train(classifystep2_1, labels_classifystep2_1, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(classifystep2_1);
+    for (var i = 0; i < classifystep2_1.length; i++) {
+        predict = svm.predict(classifystep2_1);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystep3_1.push(classifystep2_1[i]);
+            labels_classifystep3_1.push(1);
+        }
+        classifystep3_1Label.push(_.first(classifystep2_1Label));	  
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystep3_1.push(classifystep2_1[i]);
+            labels_classifystep3_1.push(1);
+        }
+        classifystep3_1Label.push(_.last(classifystep2_1Label));	  
+    }
+}
+
+function predict_classifystep2_2() {
+    trainstats = svm.train(classifystep2_2, labels_classifystep2_2, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(classifystep2_2);
+    for (var i = 0; i < classifystep2_2.length; i++) {
+        predict = svm.predict(classifystep2_2);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystep3_1.push(classifystep2_2[i]);
+            labels_classifystep3_1.push(-1);
+        }
+        classifystep3_1Label.push(_.first(classifystep2_2Label));	  
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystep3_1.push(classifystep2_2[i]);
+            labels_classifystep3_1.push(-1);
+        }
+        classifystep3_1Label.push(_.last(classifystep2_2Label));  
+    }
+}
+
+function predict_classifystep2_3() {
+    trainstats = svm.train(classifystep2_3, labels_classifystep2_3, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(classifystep2_3);
+    for (var i = 0; i < classifystep2_3.length; i++) {
+        predict = svm.predict(classifystep2_3);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystep3_2.push(classifystep2_3[i]);
+            labels_classifystep3_2.push(-1);
+        }
+        classifystep3_2Label.push(_.first(classifystep2_3Label));	  
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystep3_2.push(classifystep2_3[i]);
+            labels_classifystep3_2.push(-1);
+        }
+        classifystep3_2Label.push(_.last(classifystep2_3Label));	  
+    }
+}
+
+function predict_classifystep3_1() {
+    trainstats = svm.train(classifystep3_1, labels_classifystep3_1, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(classifystep3_1);
+    for (var i = 0; i < classifystep3_1.length; i++) {
+        predict = svm.predict(classifystep3_1);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystep4.push(classifystep3_1[i]);
+            labels_classifystep4.push(1);
+        }
+        classifystep4Label.push(_.first(classifystep3_1Label));  
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystep4.push(classifystep3_1[i]);
+            labels_classifystep4.push(1);
+        }
+        classifystep4Label.push(_.last(classifystep3_1Label));
+    }
+}
+
+function predict_classifystep3_2() {
+    trainstats = svm.train(classifystep3_2, labels_classifystep3_2, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(classifystep3_2);
+    for (var i = 0; i < classifystep3_2.length; i++) {
+        predict = svm.predict(classifystep3_2);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystep4.push(classifystep3_2[i]);
+            labels_classifystep4.push(-1);
+        }
+        classifystep4Label.push(_.first(classifystep3_2Label));  
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystep4.push(classifystep3_2[i]);
+            labels_classifystep4.push(-1);
+        }
+        classifystep4Label.push(_.last(classifystep3_2Label));  
+    }
+}
+
+function predict_classifystep4() {
+    trainstats = svm.train(classifystep4, labels_classifystep4, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(classifystep4);
+    for (var i = 0; i < classifystep4.length; i++) {
+        predict = svm.predict(classifystep4);
+    }
+    var last = _.last(predict);
+    if (last == 1) {
+        for (i = 0; i < 4; i++) {
+            classifystepFinal.push(classifystep4[i]);
+            labels_classifystepFinalLabel.push(-1);
+        }
+        classifystepFinalLabel.push(_.first(classifystep4Label));
+    } else {
+        for (i = 4; i < 8; i++) {
+            classifystepFinal.push(classifystep4[i]);
+            labels_classifystepFinalLabel.push(-1);
+        }
+        classifystepFinalLabel.push(_.last(classifystep4Label));	
+    }
+}
+
+function predict_spaceOrletter() {
+    trainstats = svm.train(classifystepFinal, labels_classifystepFinalLabel, {
+        kernel: 'linear',
+        C: svmC,
+        lastiter: 1000
+    });
+    var marg = svm.margins(classifystepFinal);
+    for (var i = 0; i < classifystepFinal.length; i++) {
+        predict = svm.predict(classifystepFinal);
+    }
+    var first = _.first(classifystepFinalLabel);
+    var last = _.last(classifystepFinalLabel);
+    if (last == "A" && sumUniqueMoves < 5) {
+        svm_word += "N";
+        console.log(svm_word);
+    }
+    if (last == "A" && first_angle >= 5) {
+        svm_word += "A";
+        console.log(svm_word);
+    }
+    if (last == "B") {
+        svm_word += "B";
+        console.log(svm_word);
+    }
+    if (last == "C") {
+        svm_word += "C";
+        console.log(svm_word);
+    }
+    if (last == "D" && sumUniqueMoves < 6) {
+        svm_word += "D";
+        console.log(svm_word);
+    }
+    if (last == "D" && sumUniqueMoves > 5) {
+        svm_word += "T";
+        console.log(svm_word);
+    }
+    if (last == "E" && sumAngleMap < 5 && sumUniqueMoves < 5) {
+        svm_word += " ";
+        console.log(svm_word);
+    }
+    if (last == "E" && sumAngleMap > 5 && sumUniqueMoves > 5) {
+        svm_word += "E";
+        console.log(svm_word);
+    }
+    if (last == "E" && sumAngleMap > 5 && sumUniqueMoves < 5) {
+        svm_word += "Z";
+        console.log(svm_word);
+    }
+    if (last == "E" && sumAngleMap > 5 && sumUniqueMoves == 5) {
+        svm_word += "V";
+        console.log(svm_word);
+    }
+    if (last == "F" && sumUniqueMoves > 5 && sumAngleMap > 10) {
+        svm_word += "F";
+        console.log(svm_word);
+    }
+    if (last == "F" && sumUniqueMoves < 6 && sumAngleMap > 10) {
+        svm_word += "Q";
+        console.log(svm_word);
+    }
+    if (last == "F" && sumUniqueMoves < 5 && sumAngleMap < 10) {
+        svm_word += "R";
+        console.log(svm_word);
+    }
+    if (last == "G" && sumUniqueMoves > 6) {
+        svm_word += "G";
+        console.log(svm_word);
+    }
+    if (last == "G" && sumUniqueMoves <= 6) {
+        svm_word += "S";
+        console.log(svm_word);
+    }
+    if (last == "H" && sumAngleMap > 5) {
+        svm_word += "H";
+        console.log(svm_word);
+    }
+    if (last == "H" && sumAngleMap < 5) {
+        svm_word += "I";
+        console.log(svm_word);
+    }
+    if (last == "I" && sumAngleMap < 5) {
+        svm_word += "I";
+        console.log(svm_word);
+    }
+    if (last == "I" && sumAngleMap > 5) {
+        svm_word += "H";
+        console.log(svm_word);
+    }
+    if (last == "J" && sumAngleMap >= 12 && sumAngleMap <= 21 &&
+        sumUniqueMoves <= 5) {
+        svm_word += "J";
+        console.log(svm_word);
+    }
+    if (last == "J" && sumAngleMap < 12) {
+        svm_word += "U";
+        console.log(svm_word);
+    }
+    if (last == "J" && sumUniqueMoves > 5) {
+        svm_word += "Y";
+        console.log(svm_word);
+    }
+    if (last == "J" && sumAngleMap > 21 && sumUniqueMoves <= 6) {
+        svm_word += "W";
+        console.log(svm_word);
+    }
+    if (last == "K") {
+        svm_word += "K";
+        console.log(svm_word);
+    }
+    if (last == "L" && sumAngleMap < 6) {
+        svm_word += "L";
+        console.log(svm_word);
+    }
+    if (last == "L" && sumAngleMap > 5) {
+        svm_word += "X";
+        console.log(svm_word);
+    }
+    if (last == "M" && sumAngleMap > 17) {
+        svm_word += "M";
+        console.log(svm_word);
+    }
+    if (last == "M" && sumUniqueMoves <= 5 && sumAngleMap <= 17) {
+        svm_word += "N";
+        console.log(svm_word);
+    }
+    if (last == "N" && sumAngleMap > 10) {
+        svm_word += "N";
+        console.log(svm_word);
+    }
+    if (last == "N" && sumAngleMap < 11) {
+        svm_word += "I";
+        console.log(svm_word);
+    }
+    if (last == "O") {
+        svm_word += "O";
+        console.log(svm_word);
+    }
+    if (last == "P") {
+        svm_word += "P";
+        console.log(svm_word);
+    }
+    if (last == "Q") {
+        svm_word += "Q";
+        console.log(svm_word);
+    }
+    if (last == "R") {
+        svm_word += "R";
+        console.log(svm_word);
+    }
+    if (last == "S") {
+        svm_word += "S";
+        console.log(svm_word);
+    }
+    if (last == "T") {
+        svm_word += "T";
+        console.log(svm_word);
+    }
+    if (last == "U") {
+        svm_word += "U";
+        console.log(svm_word);
+    }
+    if (last == "V") {
+        svm_word += "V";
+        console.log(svm_word);
+    }
+    if (last == "W") {
+        svm_word += "W";
+        console.log(svm_word);
+    }
+    if (last == "X") {
+        svm_word += "X";
+        console.log(svm_word);
+    }
+    if (last == "Y") {
+        svm_word += "Y";
+        console.log(svm_word);
+    }
+    if (last == "Z") {
+        svm_word += "Z";
+        console.log(svm_word);
+    }
+}
+
+function classification() {
+    classifystep1_1 = [];
+    classifystep1_1Label = [];
+    labels_classifystep1_1 = [];
+    classifystep1_2 = [];
+    classifystep1_2Label = [];
+    labels_classifystep1_2 = [];
+    classifystep1_3 = [];
+    classifystep1_3Label = [];
+    labels_classifystep1_3 = [];
+    classifystep1_4 = [];
+    classifystep1_4Label = [];
+    labels_classifystep1_4 = [];
+    classifystep1_5 = [];
+    classifystep1_5Label = [];
+    labels_classifystep1_5 = [];
+    classifystep1_6 = [];
+    classifystep1_6Label = [];
+    labels_classifystep1_6 = [];
+    classifystep2_1 = []; //step2_1
+    classifystep2_1Label = [];
+    labels_classifystep2_1 = [];
+    classifystep2_2 = [];
+    classifystep2_2Label = [];
+    labels_classifystep2_2 = [];
+    classifystep2_3 = [];
+    classifystep2_3Label = [];
+    labels_classifystep2_3 = [];
+    classifystep3_1 = [];
+    classifystep3_1Label = [];
+    labels_classifystep3_1 = [];
+    classifystep3_2 = [];
+    classifystep3_2Label = [];
+    labels_classifystep3_2 = [];
+    classifystep4 = [];
+    classifystep4Label = [];
+    labels_classifystep4 = [];
+    classifystepFinal = [
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0]
+    ];
+    classifystepFinalLabel = [" "];
+    labels_classifystepFinalLabel = [1, 1, 1, 1];
+    var letter_AB = [
+        [5.365690453830755, 0.773205458811089],
+        [4.886419116, 1.718516745],
+        [4.585941948, 0.911845196],
+        [4.484838576, 0.637677745],
+        [0.392699082, 5.105088062],
+        [0.392699081, 4.980733067],
+        [0.392699082, 4.585941948],
+        [0.392699082, 4.319689899]
+    ];
+    var labels_AB = [1, 1, 1, 1, -1, -1, -1, -1];
+    var letter_CD = [
+        [4.154541221, 3.015145621],
+        [4.39646179, 2.914042249],
+        [4.484838576, 2.482641523],
+        [4.05343785, 2.208474072],
+        [4.980733067536653, 1.9634954084936207],
+        [0.392699082, 1.839140414],
+        [0.392699082, 2.208474072],
+        [0.392699082, 2.825665463],
+        [0.392699081, 1.963495408]
+    ];
+    var labels_CD = [1, 1, 1, 1, 1, -1, -1, -1, -1];
+    var letter_EF = [
+        [1.7185167453667567, 1.8391404139468592],
+        [1.012948567, 2.583744894],
+        [1.9634954084936207, 1.8391404139468592],
+        [1.9634954084936207, 1.8391404139468592],
+        [3.779270398, 1.852838187],
+        [3.7792703984153815, 2.0189939137393376],
+        [4.09289105063208, 2.087850403040382],
+        [3.633960387779679, 2.0541552956943656]
+    ];
+    var labels_EF = [1, 1, 1, 1, -1, -1, -1, -1];
+    var letter_GH = [
+        [4.886419116209472, 4.860109398956549],
+        [4.994430840909518, 4.980733067536653],
+        [5.105088062083414, 5.215745283257309],
+        [4.783337507686771, 4.746317391812841],
+        [0.517054076, 0.751469752],
+        [0.392699081, 0.517054076],
+        [0.392699082, 0.741470085],
+        [0.517054076, 0.268344087]
+    ];
+    var labels_GH = [1, 1, 1, 1, -1, -1, -1, -1];
+    var letter_IJ = [
+        [0.392699082, 0.492367734],
+        [0.517054076, 0.392699081],
+        [0.392699081, 0.268344087],
+        [0.392699081, 0.503356302],
+        [0.517054076, 2.914042249],
+        [0.751469752, 4.05343785],
+        [0.392699082, 3.779270398],
+        [0.503356303, 3.85604229]
+    ];
+    var labels_IJ = [1, 1, 1, 1, -1, -1, -1, -1];
+    var letter_KL = [
+        [0.39269908169872414, 1.1780972450961724],
+        [0.46947097296850215, 1.444349294247098],
+        [0.39269908169872414, 1.1780972450961724],
+        [0.5900946415486049, 1.1780972450961724],
+        [3.534291735, 3.40993674],
+        [3.534291735, 3.658646729],
+        [3.40993674, 3.534291735],
+        [3.534291735, 3.534291735]
+    ];
+    var labels_KL = [1, 1, 1, 1, -1, -1, -1, -1];
+    var letter_MN = [
+        [3.633960387779679, 0.49236773418988616],
+        [4.886419116209472, 0.4833589688994693],
+        [3.7792703984153815, 0.39269908169872414],
+        [3.5342917352885173, 0.44819758694444095],
+        [0.637677744, 0.810923411],
+        [0.392699082, 0.503356303],
+        [0.392699081, 0.714449636],
+        [0.392699082, 0.483358969]
+    ];
+    var labels_MN = [1, 1, 1, 1, -1, -1, -1, -1];
+    var letter_OP = [
+        [5.5687356710842195, 4.517085458535846],
+        [5.00541941, 4.641440453],
+        [5.624234176, 4.319689899],
+        [5.350066725, 4.484838576],
+        [3.5342917352885173, 5.181859953353191],
+        [3.289313072161653, 5.204756714574575],
+        [3.5342917352885173, 5.204756714574575],
+        [3.070644126287711, 5.229443056630175]
+    ];
+    var labels_OP = [1, 1, 1, 1, -1, -1, -1, -1];
+    var letter_QR = [
+        [4.585941948, 0.517054076],
+        [4.484838576, 0.28204186],
+        [5.105088062, 0.517054076],
+        [4.585941948, 0.392699082],
+        [0.392699082, 0.911845196],
+        [0.751469751, 0.85634669],
+        [0.392699081, 1.178097245],
+        [0.392699082, 1.254869136]
+    ];
+    var labels_QR = [1, 1, 1, 1, -1, -1, -1, -1];
+    var letter_ST = [
+        [4.746317392, 4.517085459],
+        [3.997939344, 4.154541221],
+        [0.392699082, 0.637677745],
+        [4.484838576, 4.585941947],
+        [0.392699082, 2.482641523],
+        [0.392699081, 3.658646729],
+        [0.451454904, 2.063164061],
+        [0.392699082, 2.054155296]
+    ];
+    var labels_ST = [1, 1, 1, 1, -1, -1, -1, -1];
+    var letter_UV = [
+        [0.475840314, 0.483358969],
+        [0.392699081, 3.779270398],
+        [0.392699081, 4.053437849],
+        [0.268344087, 3.534291735],
+        [0.751469752, 3.175521065],
+        [0.611368028, 3.015145621],
+        [0.714449636, 3.212541181],
+        [0.503356303, 3.409936741]
+    ];
+    var labels_UV = [1, 1, 1, 1, -1, -1, -1, -1];
+    var letter_WX = [
+        [0.6787505234160424, 3.0151456210419942],
+        [0.8997975860910611, 3.175521065017945],
+        [0.8563466906995303, 3.3074928872346314],
+        [0.48917285688131107, 3.175521065017945],
+        [6.055634902, 4.396461789],
+        [5.890486225, 4.484838576],
+        [6.055634902, 4.154541221],
+        [5.725337548, 4.319689898]
+    ];
+    var labels_WX = [1, 1, 1, 1, -1, -1, -1, -1];
+    var letter_YZ = [
+        [0.392699082, 4.092891051],
+        [0.392699082, 4.242918007],
+        [0.392699082, 3.893062406],
+        [0.392699081, 3.423634514],
+        [1.839140414, 1.178097245],
+        [1.963495408, 1.604724738],
+        [1.963495408, 1.880354177],
+        [1.963495408, 1.839140414]
+    ];
+    var labels_YZ = [1, 1, 1, 1, -1, -1, -1, -1];
+    var x = first_angle;
+    var y = last_angle;
+    letter_AB[letter_AB.length] = [x, y];
+    labels_AB[letter_AB.length - 1] = 0;
+    letter_CD[letter_CD.length] = [x, y];
+    labels_CD[letter_CD.length - 1] = 0;
+    letter_EF[letter_EF.length] = [x, y];
+    labels_EF[letter_EF.length - 1] = 0;
+    letter_GH[letter_GH.length] = [x, y];
+    labels_GH[letter_GH.length - 1] = 0;
+    letter_IJ[letter_IJ.length] = [x, y];
+    labels_IJ[letter_IJ.length - 1] = 0;
+    letter_KL[letter_KL.length] = [x, y];
+    labels_KL[letter_KL.length - 1] = 0;
+    letter_MN[letter_MN.length] = [x, y];
+    labels_MN[letter_MN.length - 1] = 0;
+    letter_OP[letter_OP.length] = [x, y];
+    labels_OP[letter_OP.length - 1] = 0;
+    letter_QR[letter_QR.length] = [x, y];
+    labels_QR[letter_QR.length - 1] = 0;
+    letter_ST[letter_ST.length] = [x, y];
+    labels_ST[letter_ST.length - 1] = 0;
+    letter_UV[letter_UV.length] = [x, y];
+    labels_UV[letter_UV.length - 1] = 0;
+    letter_WX[letter_WX.length] = [x, y];
+    labels_WX[letter_WX.length - 1] = 0;
+    predict_AB(letter_AB, labels_AB);
+    predict_CD(letter_CD, labels_CD);
+    predict_EF(letter_EF, labels_EF);
+    predict_GH(letter_GH, labels_GH);
+    predict_IJ(letter_IJ, labels_IJ);
+    predict_KL(letter_KL, labels_KL);
+    predict_MN(letter_MN, labels_MN);
+    predict_OP(letter_OP, labels_OP);
+    predict_QR(letter_QR, labels_QR);
+    predict_ST(letter_ST, labels_ST);
+    predict_UV(letter_UV, labels_UV);
+    predict_WX(letter_WX, labels_WX);
+    classifystep1_1[classifystep1_1.length] = [x, y];
+    labels_classifystep1_1[classifystep1_1.length - 1] = 0;
+    predict_classifystep1_1();
+    classifystep1_2[classifystep1_2.length] = [x, y];
+    labels_classifystep1_2[classifystep1_2.length - 1] = 0;
+    predict_classifystep1_2();
+    classifystep1_3[classifystep1_3.length] = [x, y];
+    labels_classifystep1_3[classifystep1_3.length - 1] = 0;
+    predict_classifystep1_3();
+    classifystep1_4[classifystep1_4.length] = [x, y];
+    labels_classifystep1_4[classifystep1_4.length - 1] = 0;
+    predict_classifystep1_4();
+    classifystep1_5[classifystep1_5.length] = [x, y];
+    labels_classifystep1_5[classifystep1_5.length - 1] = 0;
+    predict_classifystep1_5();
+    classifystep1_6[classifystep1_6.length] = [x, y];
+    labels_classifystep1_6[classifystep1_6.length - 1] = 0;
+    predict_classifystep1_6();
+    classifystep2_1[classifystep2_1.length] = [x, y];
+    labels_classifystep2_1[classifystep2_1.length - 1] = 0;
+    predict_classifystep2_1();
+    console.log(classifystep2_1Label);
+    classifystep2_2[classifystep2_2.length] = [x, y];
+    labels_classifystep2_2[classifystep2_2.length - 1] = 0;
+    predict_classifystep2_2();
+    console.log(classifystep2_2Label);
+    classifystep2_3[classifystep2_3.length] = [x, y];
+    labels_classifystep2_3[classifystep2_3.length - 1] = 0;
+    predict_classifystep2_3();
+    console.log(classifystep2_3Label);
+    predict_YZ(letter_YZ, labels_YZ);
+    classifystep3_1[classifystep3_1.length] = [x, y];
+    labels_classifystep3_1[classifystep3_1.length - 1] = 0;
+    predict_classifystep3_1();
+    console.log(classifystep3_1Label);
+    classifystep3_2[classifystep3_2.length] = [x, y];
+    labels_classifystep3_2[classifystep3_2.length - 1] = 0;
+    predict_classifystep3_2();
+    console.log(classifystep3_2Label);
+    classifystep4[classifystep4.length] = [x, y];
+    labels_classifystep4[classifystep4.length - 1] = 0;
+    predict_classifystep4();
+    console.log(classifystep4Label);
+    labels_classifystepFinalLabel[classifystepFinal.length] = [x, y];
+    labels_classifystepFinalLabel[classifystepFinal.length - 1] = 0;
+    predict_spaceOrletter();
+    split_word();
+    moves = [];
+    angleArray = [];
+    first_angle = 0;
+    last_angle = 0;
+    sumAngleMap = 0;
+    sumUniqueMoves = 0;
+}
+ 
+ 
+ var list_syllable = [
+	{
+		id: "w1",
+		syllable: "KVVK"
+	},
+	{
+		id: "w2",
+		syllable: "VKVK"
+	},
+	{
+		id: "w3",
+		syllable: "KVVKVKV"
+	},
+	{
+		id: "w4",
+		syllable: "KVKKVV"
+	},
+	{
+		id: "w5",
+		syllable: "KVKVV"
+	},
+	{
+		id: "w6",
+		syllable: "VVKV"
+	},
+	{
+		id: "w7",
+		syllable: "KVKVK"
+	},
+	{
+		id: "w8",
+		syllable: "KVKKV"
+	}, //ny ng
+	{
+		id: "w9",
+		syllable: "KVKKVK"
+	}, // not ny ng 
+	{
+		id: "w10",
+		syllable: "KVKKVKV"
+	}, // not ny ng
+	//{id:"w11", syllable:"KVKKVK"}, // ny ng .indexOf('orl') !== -1
+	{
+		id: "w12",
+		syllable: "VKKKKVKVK"
+	},
+	{
+		id: "w13",
+		syllable: "KVKVKKVK"
+	},
+	{
+		id: "w14",
+		syllable: "KVKVKVK"
+	},
+	{
+		id: "w15",
+		syllable: "KVKVKV"
+	},
+	//{id:"w16", syllable:"KVKKVKV"}, // ny ng
+	{
+		id: "w17",
+		syllable: "KVKV"
+	},
+	{
+		id: "w18",
+		syllable: "VKV"
+	},
+	{
+		id: "w19",
+		syllable: "VKVVK"
+	},
+	{
+		id: "w20",
+		syllable: "VKKVK"
+	},
+	{
+		id: "w21",
+		syllable: "KVKKKV"
+	},
+	{
+		id: "w22",
+		syllable: "KVKKVKVKVK"
+	},
+	{
+		id: "w23",
+		syllable: "KVKKKVKKVK"
+	},
+	{
+		id: "w24",
+		syllable: "KKVKKKVKKVKV"
+	},
+	{
+		id: "w25",
+		syllable: "KKVKKKVKV"
+	},
+	{
+		id: "w26",
+		syllable: "KKVKKKKVKKVKV"
+	},
+	{
+		id: "w27",
+		syllable: "KKVKKVK"
+	},
+	{
+		id: "w28",
+		syllable: "VKKKKV"
+	},
+	{
+		id: "w29",
+		syllable: "VKKVKKVKKV"
+	},
+	{
+		id: "w30",
+		syllable: "VKKKVKVKVK"
+	},
+	{
+		id: "w31",
+		syllable: "KVVKKVKV"
+	},
+	{
+		id: "w32",
+		syllable: "KVKVKKVK"
+	},
+	{
+		id: "w33",
+		syllable: "KVKKVVKVKKV"
+	},
+	{
+		id: "w34",
+		syllable: "VKKVV"
+	},
+	{
+		id: "w35",
+		syllable: "KVKVKK"
+	},
+	{
+		id: "w36",
+		syllable: "VKKVK"
+	},
+	//{id:"w37", syllable:"KVKKKVK"},
+	{
+		id: "w38",
+		syllable: "KKVKVK"
+	},
+	{
+		id: "w39",
+		syllable: "KVKKKKVK"
+	},
+	{
+		id: "w40",
+		syllable: "KVKVKVKVK"
+	},
+	{
+		id: "w41",
+		syllable: "VKKVKVK"
+	},
+	{
+		id: "w42",
+		syllable: "KKVKKV"
+	}, // not ny ng 
+	{
+		id: "w43",
+		syllable: "VKKKVKKV"
+	},
+	{
+		id: "w44",
+		syllable: "KVVKV"
+	},
+	{
+		id: "w45",
+		syllable: "VKKKVKVKV"
+	},
+	{
+		id: "w46",
+		syllable: "VKKKVK"
+	},
+	{
+		id: "w47",
+		syllable: "KVV"
+	},
+	{
+		id: "w48",
+		syllable: "KVKVKVV"
+	},
+	{
+		id: "w49",
+		syllable: "VKKKV"
+	},
+	{
+		id: "w50",
+		syllable: "KVKVKKVKV"
+	},
+	{
+		id: "w51",
+		syllable: "VVKK"
+	},
+	//{id:"w52", syllable:"KVKKV"}, // not ny ng 
+	//{id:"w53", syllable:"KKVKKV"}, // ny ng 
+	{
+		id: "w54",
+		syllable: "KVKKKVK"
+	}
+];
+   
+function split_word() {
+	var word = svm_word;
+	var syllable = "";
+	var hasil = "";
+	for (var i = 0; i < word.length; i++) {
+		if (word[i] == "A" || word[i] == "I" || word[i] == "U" || word[i] == "E" ||
+			word[i] == "O") {
+			syllable += "V";
+		} else {
+			syllable += "K";
+		}
+		console.log(syllable);
+	}
+	var result = _.filter(list_syllable, function(obj) {
+		if (_.isEqual(obj.syllable, syllable)) {
+			syllable_id = obj.id;
+			console.log(syllable_id);
+		}
+	});
+}
+		
+</script>
+<script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+<script type="text/javascript" charset="utf-8" src="cordova_plugins.js"></script>
+<script type="text/javascript" charset="utf-8">
+// Wait for Cordova to load
+//
+document.addEventListener("deviceready", onDeviceReady, false);
+// Cordova is ready
+//
+function onDeviceReady() {}
+	// Audio player
+	//
+var my_media = null;
+var mediaTimer = null;
+// Play audio
+//
+function playAudio(src) {
+		// Create Media object from src
+		my_media = new Media(src, onSuccess, onError);
+		// Play audio
+		my_media.play();
+		// Update my_media position every second
+		if (mediaTimer == null) {
+			mediaTimer = setInterval(function() {
+				// get my_media position
+				my_media.getCurrentPosition(
+					// success callback
+					function(position) {
+						if (position > -1) {
+							setAudioPosition((position) + " sec");
+						}
+					},
+					// error callback
+					function(e) {
+						console.log("Error getting pos=" + e);
+						setAudioPosition("Error: " + e);
+					});
+			}, 1000);
+		}
+	}
+	// Pause audio
+	// 
+
+function pauseAudio() {
+		if (my_media) {
+			my_media.pause();
+		}
+	}
+	// Stop audio
+	// 
+
+function stopAudio() {
+		if (my_media) {
+			my_media.stop();
+		}
+		clearInterval(mediaTimer);
+		mediaTimer = null;
+	}
+	// onSuccess Callback
+	//
+
+function onSuccess() {
+		console.log("playAudio():Audio Success");
+	}
+	// onError Callback 
+	//
+
+function onError(error) {
+		// alert('code: '    + error.code    + '\n' + 'message: ' + error.message + '\n');
+	}
+	// Set audio position
+	// 
+
+function setAudioPosition(position) {
+	document.getElementById('audio_position').innerHTML = position;
+}
+</script>
+	
+</head>
+<body>
+  <div id="outer">
+    <div id="canvas"></div>
+  </div><a class="button icon eraser" href="javascript:void(0);" onclick=
+  "clearCanvas()" ontouchstart="return true;"><span>Ulangi</span></a> <a class="button icon bird" href="javascript:void(0);"
+  onclick="recognition()" ontouchstart="return true;"><span>Kenali Kata</span></a>
+  <br>
+  <br>
+  <br>
+  <div id="box" style="border-radius: 25px;border: 2px solid #197519;width: 100%;display:none">
+    <p id="hasil" style="margin-left:10px"></p>
+  </div>
+</body>
+</html>

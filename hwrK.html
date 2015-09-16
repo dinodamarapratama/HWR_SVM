@@ -112,11 +112,7 @@ a:active {
 		
 		</style>
   
-  <!-- CSS goes in the document HEAD or added to your external stylesheet -->
-<style type="text/css">
 
-	
-</style>
 
  <script type="text/javascript">
 
@@ -710,7 +706,7 @@ $.fn.drawTouch = function() {
 		e = e.originalEvent;
 		x = e.changedTouches[0].clientX - 1;
 		y = e.changedTouches[0].clientY - 2;
-		ctx.lineTo(x, y);
+		ctx.lineTo(x,y);
 		ctx.stroke();
 		
 
@@ -767,7 +763,7 @@ $.fn.drawTouch = function() {
 
 
 
-$.fn.drawMouse = function() {
+$.fn.drawMouse = function() {																								
 	var clicked = 0;
 	
 	var start = function(e) {
@@ -914,340 +910,6 @@ var labels_classifystep4 = [];
 var classifystepFinal = [[1.9634954084936207,1.9634954084936207],[1.9634954084936207,1.9634954084936207],[1.9634954084936207,1.9634954084936207],[1.9634954084936207,1.9634954084936207]];
 var classifystepFinalLabel = [" "];
 var labels_classifystepFinalLabel = [1,1,1,1];
-
-
-//training
-
-function trainSVM_AB(letter_AB,labels_AB) {
-	trainstats = svm.train(letter_AB, labels_AB, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_AB);
-	for (var i = 0; i < letter_AB.length; i++) {
-		predict = svm.predict(letter_AB);
-	}
-}
-
-function trainSVM_CD(letter_CD,labels_CD) {
-	trainstats = svm.train(letter_CD, labels_CD, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_CD);
-	for (var i = 0; i < letter_CD.length; i++) {
-		predict = svm.predict(letter_CD);
-	}
-}
-
-function trainSVM_EF(letter_EF,labels_EF) {
-	trainstats = svm.train(letter_EF, labels_EF, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_EF);
-	for (var i = 0; i < letter_EF.length; i++) {
-		predict = svm.predict(letter_EF);
-	}
-}
-
-function trainSVM_GH(letter_GH,labels_GH) {
-	trainstats = svm.train(letter_GH, labels_GH, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_GH);
-	for (var i = 0; i < letter_GH.length; i++) {
-		predict = svm.predict(letter_GH);
-	}
-}
-
-function trainSVM_IJ(letter_IJ,labels_IJ) {
-	trainstats = svm.train(letter_IJ, labels_IJ, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_IJ);
-	for (var i = 0; i < letter_IJ.length; i++) {
-		predict = svm.predict(letter_IJ);
-	}
-
-}
-
-function trainSVM_KL(letter_KL,labels_KL) {
-	trainstats = svm.train(letter_KL, labels_KL, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_KL);
-	for (var i = 0; i < letter_KL.length; i++) {
-		predict = svm.predict(letter_KL);
-	}
-
-}
-
-function trainSVM_MN(letter_MN,labels_MN) {
-	trainstats = svm.train(letter_MN, labels_MN, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_MN);
-	for (var i = 0; i < letter_MN.length; i++) {
-		predict = svm.predict(letter_MN);
-	}
-
-}
-
-function trainSVM_OP(letter_OP,labels_OP) {
-	trainstats = svm.train(letter_OP, labels_OP, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_OP);
-	for (var i = 0; i < letter_OP.length; i++) {
-		predict = svm.predict(letter_OP);
-	}
-
-}
-
-function trainSVM_QR(letter_QR,labels_QR) {
-	trainstats = svm.train(letter_QR, labels_QR, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_QR);
-	for (var i = 0; i < letter_QR.length; i++) {
-		predict = svm.predict(letter_QR);
-	}
-
-}
-
-function trainSVM_ST(letter_ST,labels_ST) {
-	trainstats = svm.train(letter_ST, labels_ST, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_ST);
-	for (var i = 0; i < letter_ST.length; i++) {
-		predict = svm.predict(letter_ST);
-	}
-
-}
-
-function trainSVM_UV(letter_UV,labels_UV) {
-	trainstats = svm.train(letter_UV, labels_UV, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_UV);
-	for (var i = 0; i < letter_UV.length; i++) {
-		predict = svm.predict(letter_UV);
-	}
-
-}
-
-function trainSVM_WX(letter_WX,labels_WX) {
-	trainstats = svm.train(letter_WX, labels_WX, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_WX);
-	for (var i = 0; i < letter_WX.length; i++) {
-		predict = svm.predict(letter_WX);
-	}
-
-}
-
-function trainSVM_YZ(letter_YZ,labels_YZ) {
-
-	trainstats = svm.train(letter_YZ, labels_YZ, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(letter_YZ);
-	for (var i = 0; i < letter_YZ.length; i++) {
-		predict = svm.predict(letter_YZ);
-	}
-}
-
-
-//TRAIN classifystep1
-function train_classifystep1_1() {
-	trainstats = svm.train(classifystep1_1, labels_classifystep1_1, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystep1_1);
-	for (var i = 0; i < classifystep1_1.length; i++) {
-		predict = svm.predict(classifystep1_1);
-	}
-}
-
-function train_classifystep1_2() {
-	trainstats = svm.train(classifystep1_2, labels_classifystep1_2, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystep1_2);
-	for (var i = 0; i < classifystep1_2.length; i++) {
-		predict = svm.predict(classifystep1_2);
-	}
-}
-
-function train_classifystep1_3() {
-	trainstats = svm.train(classifystep1_3, labels_classifystep1_3, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystep1_3);
-	for (var i = 0; i < classifystep1_3.length; i++) {
-		predict = svm.predict(classifystep1_3);
-	}
-}
-
-function train_classifystep1_4() {
-	trainstats = svm.train(classifystep1_4, labels_classifystep1_4, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystep1_4);
-	for (var i = 0; i < classifystep1_4.length; i++) {
-		predict = svm.predict(classifystep1_4);
-	}
-}
-
-function train_classifystep1_5() {
-	trainstats = svm.train(classifystep1_5, labels_classifystep1_5, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystep1_5);
-	for (var i = 0; i < classifystep1_5.length; i++) {
-		predict = svm.predict(classifystep1_5);
-	}
-}
-
-function train_classifystep1_6() {
-	trainstats = svm.train(classifystep1_6, labels_classifystep1_6, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystep1_6);
-	for (var i = 0; i < classifystep1_6.length; i++) {
-		predict = svm.predict(classifystep1_6);
-	}
-}
-
-
-//TRAIN classifystep2
-function train_classifystep2_1() {
-	trainstats = svm.train(classifystep2_1, labels_classifystep2_1, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystep2_1);
-	for (var i = 0; i < classifystep2_1.length; i++) {
-		predict = svm.predict(classifystep2_1);
-	}
-}
-
-function train_classifystep2_2() {
-	trainstats = svm.train(classifystep2_2, labels_classifystep2_2, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystep2_2);
-	for (var i = 0; i < classifystep2_2.length; i++) {
-		predict = svm.predict(classifystep2_2);
-	}
-}
-
-function train_classifystep2_3() {
-	trainstats = svm.train(classifystep2_3, labels_classifystep2_3, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystep2_3);
-	for (var i = 0; i < classifystep2_3.length; i++) {
-		predict = svm.predict(classifystep2_3);
-	}
-}
-
-
-//TRAIN classifystep3
-function train_classifystep3_1() {
-	trainstats = svm.train(classifystep3_1, labels_classifystep3_1, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystep3_1);
-	for (var i = 0; i < classifystep3_1.length; i++) {
-		predict = svm.predict(classifystep3_1);
-	}
-}
-
-function train_classifystep3_2() {
-	trainstats = svm.train(classifystep3_2, labels_classifystep3_2, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystep3_2);
-	for (var i = 0; i < classifystep3_2.length; i++) {
-		predict = svm.predict(classifystep3_2);
-	}
-}
-
-
-//final
-
-function train_classifystep4() {
-	trainstats = svm.train(classifystep4, labels_classifystep4, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystep4);
-	for (var i = 0; i < classifystep4.length; i++) {
-		predict = svm.predict(classifystep4);
-	}
-}
-
-function train_spaceOrletter() {
-	trainstats = svm.train(classifystepFinal, classifystepFinalLabel, {
-		kernel: 'linear',
-		C: svmC,
-		lastiter: 1000
-	});
-	var marg = svm.margins(classifystepFinal);
-	for (var i = 0; i < classifystepFinal.length; i++) {
-		predict = svm.predict(classifystepFinal);
-	}
-}
-
 
 
 //classifystep1_1
@@ -2108,15 +1770,15 @@ function predict_spaceOrletter() {
 
 
 	
-	if ( last == "A" && data6_s1 < 5   ) {
-		svm_word += "N";
-		console.log(svm_word);
-	} 
-	
-	if ( last == "A" && data1_s1 >= 5 ) {
-		svm_word += "A";
-		console.log(svm_word);
-	} 
+if (last == "A" && data6_s1 < 5) {
+	svm_word += "N";
+	console.log(svm_word);
+}
+
+if (last == "A" && data1_s1 >= 5) {
+	svm_word += "A";
+	console.log(svm_word);
+}
 	
 	if ( last == "B"  ) {
 		svm_word += "B";
@@ -2373,8 +2035,7 @@ function mouseClick() {
 
 	];
 	var labels_AB = [1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_AB(letter_AB,labels_AB);
-
+	
 
 
 	var letter_CD = [
@@ -2389,7 +2050,7 @@ function mouseClick() {
 [	0.392699081	,	1.963495408	]	
 	];
 	var labels_CD = [1, 1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_CD(letter_CD,labels_CD);
+	
 
 
 
@@ -2405,7 +2066,7 @@ function mouseClick() {
 
 	];
 	var labels_EF = [1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_EF(letter_EF,labels_EF);
+	
 
 
 
@@ -2422,7 +2083,7 @@ function mouseClick() {
 
 	];
 	var labels_GH = [1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_GH(letter_GH,labels_GH);
+	
 
 
 
@@ -2437,7 +2098,7 @@ function mouseClick() {
 [	0.503356303	,	3.85604229	]	
 	];
 	var labels_IJ = [1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_IJ(letter_IJ,labels_IJ);
+	
 
 
 
@@ -2453,7 +2114,7 @@ function mouseClick() {
 
 	];
 	var labels_KL = [1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_KL(letter_KL,labels_KL);
+	
 
 
 
@@ -2469,8 +2130,7 @@ function mouseClick() {
 
 	];
 	var labels_MN = [1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_MN(letter_MN,labels_MN);
-
+	
 
 
 	var letter_OP = [
@@ -2485,8 +2145,6 @@ function mouseClick() {
 
 	];
 	var labels_OP = [1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_OP(letter_OP,labels_OP);
-
 
 
 	var letter_QR = [
@@ -2501,10 +2159,7 @@ function mouseClick() {
 
 	];
 	var labels_QR = [1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_QR(letter_QR,labels_QR);
-
-
-
+	
 	var letter_ST = [
 [	4.746317392	,	4.517085459	]	,
 [	3.997939344	,	4.154541221	]	,
@@ -2517,8 +2172,7 @@ function mouseClick() {
 
 	];
 	var labels_ST = [1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_ST(letter_ST,labels_ST);
-
+	
 
 
 	var letter_UV = [
@@ -2533,8 +2187,7 @@ function mouseClick() {
 
 	];
 	var labels_UV = [1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_UV(letter_UV,labels_UV);
-
+	
 
 	var letter_WX = [
 [	0.6787505234160424, 3.0151456210419942	]	,
@@ -2548,8 +2201,7 @@ function mouseClick() {
 
 	];
 	var labels_WX = [1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_WX(letter_WX,labels_WX);
-
+	
 
 
 	var letter_YZ = [
@@ -2564,8 +2216,7 @@ function mouseClick() {
 
 	];
 	var labels_YZ = [1, 1, 1, 1, -1, -1, -1, -1];
-	trainSVM_YZ(letter_YZ,labels_YZ);
-
+	
 
 
 	var x = data1_s1	;
@@ -2633,7 +2284,7 @@ function mouseClick() {
 	predict_WX(letter_WX,labels_WX);
 
 
-	train_classifystep1_1();
+	
 	classifystep1_1[classifystep1_1.length] = [x, y];
 	labels_classifystep1_1[classifystep1_1.length - 1] = 0;
 	predict_classifystep1_1();
@@ -2642,35 +2293,35 @@ function mouseClick() {
 	
 	//console.log(classifystep1_1Label);	
 
-	train_classifystep1_2();
+	
 	classifystep1_2[classifystep1_2.length] = [x, y];
 	labels_classifystep1_2[classifystep1_2.length - 1] = 0;
 	predict_classifystep1_2();
 	
 	//console.log(classifystep1_2Label);
 
-	train_classifystep1_3();
+	
 	classifystep1_3[classifystep1_3.length] = [x, y];
 	labels_classifystep1_3[classifystep1_3.length - 1] = 0;
 	predict_classifystep1_3();
 	
 	//console.log(classifystep1_3Label);
 
-	train_classifystep1_4();
+	
 	classifystep1_4[classifystep1_4.length] = [x, y];
 	labels_classifystep1_4[classifystep1_4.length - 1] = 0;
 	predict_classifystep1_4();
 	
 	//console.log(classifystep1_4Label);
 
-	train_classifystep1_5();
+	
 	classifystep1_5[classifystep1_5.length] = [x, y];
 	labels_classifystep1_5[classifystep1_5.length - 1] = 0;
 	predict_classifystep1_5();
 	
 	//console.log(classifystep1_5Label);
 
-	train_classifystep1_6();
+	
 	classifystep1_6[classifystep1_6.length] = [x, y];
 	labels_classifystep1_6[classifystep1_6.length - 1] = 0;
 	predict_classifystep1_6();
@@ -2678,7 +2329,7 @@ function mouseClick() {
 	//console.log(classifystep1_6Label);
 
 
-	train_classifystep2_1();
+	
 	classifystep2_1[classifystep2_1.length] = [x, y];
 	labels_classifystep2_1[classifystep2_1.length - 1] = 0;
 	predict_classifystep2_1();
@@ -2686,14 +2337,13 @@ function mouseClick() {
 	console.log(classifystep2_1Label);
 
 
-	train_classifystep2_2();
 	classifystep2_2[classifystep2_2.length] = [x, y];
 	labels_classifystep2_2[classifystep2_2.length - 1] = 0;
 	predict_classifystep2_2();
 	
 	console.log(classifystep2_2Label);
 
-	train_classifystep2_3();
+	
 	classifystep2_3[classifystep2_3.length] = [x, y];
 	labels_classifystep2_3[classifystep2_3.length - 1] = 0;
 	predict_classifystep2_3();
@@ -2702,28 +2352,28 @@ function mouseClick() {
 
 	predict_YZ(letter_YZ,labels_YZ);
 
-	train_classifystep3_1();
+	
 	classifystep3_1[classifystep3_1.length] = [x, y];
 	labels_classifystep3_1[classifystep3_1.length - 1] = 0;
 	predict_classifystep3_1();
 	
 	console.log(classifystep3_1Label);
 
-	train_classifystep3_2();
+	
 	classifystep3_2[classifystep3_2.length] = [x, y];
 	labels_classifystep3_2[classifystep3_2.length - 1] = 0;
 	predict_classifystep3_2();
 	
 	console.log(classifystep3_2Label);
 
-	train_classifystep4();
+	
 	classifystep4[classifystep4.length] = [x, y];
 	labels_classifystep4[classifystep4.length - 1] = 0;
 	predict_classifystep4();
 	
 	console.log(classifystep4Label);
 	
-	train_spaceOrletter();
+	
 	labels_classifystepFinalLabel[classifystepFinal.length] = [x, y];
 	labels_classifystepFinalLabel[classifystepFinal.length - 1] = 0;
 	predict_spaceOrletter();

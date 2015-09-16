@@ -28,12 +28,14 @@ var svmjs = (function(exports){
       options = options || {};
       var C = options.C || 1.0; // C value. Decrease for more regularization
       var tol = options.tol || 1e-4; // numerical tolerance. Don't touch unless you're pro
+	  
       var alphatol = options.alphatol || 1e-7; // non-support vectors for space and time efficiency are truncated. To guarantee correct result set this to 0 to do no truncating. If you want to increase efficiency, experiment with setting this little higher, up to maybe 1e-4 or so.
       var maxiter = options.maxiter || 10000; // max number of iterations
       var numpasses = options.numpasses || 10; // how many passes over data with no change before we halt? Increase for more precision.
       
       // instantiate kernel according to options. kernel can be given as string or as a custom function
       var kernel = linearKernel;
+	  
       this.kernelType = "linear";
       if("kernel" in options) {
         if(typeof options.kernel === "string") {
@@ -42,6 +44,8 @@ var svmjs = (function(exports){
             this.kernelType = "linear"; 
             kernel = linearKernel; 
           }
+		  
+		  
           if(options.kernel === "rbf") { 
             var rbfSigma = options.rbfsigma || 0.5;
             this.rbfSigma = rbfSigma; // back this up
@@ -56,21 +60,25 @@ var svmjs = (function(exports){
       }
 
       // initializations
-      this.kernel = kernel;
-      this.N = data.length; var N = this.N;
-      this.D = data[0].length; var D = this.D;
-      this.alpha = zeros(N);
+      this.kernel = kernel; //linear
+      this.N = data.length; var N = this.N; //jumlah data (8)
+      this.D = data[0].length; var D = this.D; //kombinasi linear (2)
+	  
+      this.alpha = zeros(N); //[0, 0, 0, 0, 0, 0, 0, 0]
+	  
       this.b = 0.0;
+	 
       this.usew_ = false; // internal efficiency flag
 
       // Cache kernel computations to avoid expensive recomputation.
       // This could use too much memory if N is large.
       if (options.memoize) {
         this.kernelResults = new Array(N);
+	
         for (var i=0;i<N;i++) {
           this.kernelResults[i] = new Array(N);
           for (var j=0;j<N;j++) {
-            this.kernelResults[i][j] = kernel(data[i],data[j]);
+            this.kernelResults[i][j] = kernel(data[i],data[j]);	 
           }
         }
       }
@@ -78,12 +86,15 @@ var svmjs = (function(exports){
       // run SMO algorithm
       var iter = 0;
       var passes = 0;
-      while(passes < numpasses && iter < maxiter) {
-        
+	   
+      while(passes < numpasses && iter < maxiter) { // loop hingga 0 < 10  && iterasi < 10000
         var alphaChanged = 0;
-        for(var i=0;i<N;i++) {
-        
-          var Ei= this.marginOne(data[i]) - labels[i];
+		
+        for(var i=0;i<N;i++) { //N = 8 sebanyak iterasi
+      
+          var Ei= this.marginOne(data[i]) - labels[i]; //selisih nilai label 1 dan -1
+	   
+		  //NEXTNEXT
           if( (labels[i]*Ei < -tol && this.alpha[i] < C)
            || (labels[i]*Ei > tol && this.alpha[i] > 0) ){
             
@@ -116,6 +127,8 @@ var svmjs = (function(exports){
             if(newaj<L) newaj = L;
             if(Math.abs(aj - newaj) < 1e-4) continue; 
             this.alpha[j] = newaj;
+		
+			
             var newai = ai + labels[i]*labels[j]*(aj - newaj);
             this.alpha[i] = newai;
             
@@ -129,6 +142,7 @@ var svmjs = (function(exports){
             if(newaj > 0 && newaj < C) this.b= b2;
             
             alphaChanged++;
+			
             
           } // end alpha_i needed updating
         } // end for i=1..N
@@ -140,18 +154,26 @@ var svmjs = (function(exports){
         
       } // end outer loop
       
+	  
+	  
+	  
       // if the user was using a linear kernel, lets also compute and store the
       // weights. This will speed up evaluations during testing time
       if(this.kernelType === "linear") {
 
         // compute weights and store them
         this.w = new Array(this.D);
-        for(var j=0;j<this.D;j++) {
+		
+        for(var j=0;j<this.D;j++) { //2
           var s= 0.0;
-          for(var i=0;i<this.N;i++) {
+		   
+          for(var i=0;i<this.N;i++) { // i = 8
+		  
             s+= this.alpha[i] * labels[i] * data[i][j];
+			  
           }
           this.w[j] = s;
+		
           this.usew_ = true;
         }
       } else {
@@ -178,6 +200,9 @@ var svmjs = (function(exports){
         this.data = newdata;
         this.labels = newlabels;
         this.alpha = newalpha;
+		
+		
+		
         this.N = this.data.length;
         //console.log("filtered training data from %d to %d support vectors.", data.length, this.data.length);
       }
@@ -186,13 +211,30 @@ var svmjs = (function(exports){
       trainstats.iters= iter;
       return trainstats;
     }, 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
     
     // inst is an array of length D. Returns margin of given example
     // this is the core prediction function. All others are for convenience mostly
     // and end up calling this one somehow.
-    marginOne: function(inst) {
-
+	
+      marginOne: function(inst) { //this data 
+      
       var f = this.b;
+
       // if the linear kernel was used and w was computed and stored,
       // (i.e. the svm has fully finished training)
       // the internal class variable usew_ will be set to true.
@@ -202,7 +244,12 @@ var svmjs = (function(exports){
         // we computed these during train(). This is significantly faster
         // than the version below
         for(var j=0;j<this.D;j++) {
-          f += inst[j] * this.w[j];
+		
+          f += inst[j] * this.w[j];  // bias + = kombinasi linear setiap data * this.w
+		 
+	      //console.log(f + "__________" + inst[j] + "__________" +  this.w[j]  );
+
+		
         }
 
       } else {
@@ -221,13 +268,15 @@ var svmjs = (function(exports){
     
     // data is an NxD array. Returns array of margins.
     margins: function(data) {
-      
+     
       // go over support vectors and accumulate the prediction. 
       var N = data.length;
       var margins = new Array(N);
       for(var i=0;i<N;i++) {
         margins[i] = this.marginOne(data[i]);
+	
       }
+	 
       return margins;
       
     },
@@ -245,6 +294,7 @@ var svmjs = (function(exports){
       for(var i=0;i<margs.length;i++) {
         margs[i] = margs[i] > 0 ? 1 : -1;
       }
+	
       return margs;
     },
     
@@ -335,7 +385,9 @@ var svmjs = (function(exports){
   
   function linearKernel(v1, v2) {
     var s=0; 
+		 
     for(var q=0;q<v1.length;q++) { s += v1[q] * v2[q]; } 
+	 
     return s;
   }
 
